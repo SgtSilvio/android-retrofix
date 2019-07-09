@@ -29,8 +29,8 @@ gradlePlugin {
 }
 
 pluginBundle {
-    website = 'https://github.com/SgtSilvio/android-retrofit'
-    vcsUrl = 'https://github.com/SgtSilvio/android-retrofit'
+    website = 'https://github.com/SgtSilvio/android-retrofix'
+    vcsUrl = 'https://github.com/SgtSilvio/android-retrofix'
     description = 'Backports Java 8 APIs (java.util.Optional, java.util.function, java.util.stream, '+
     'java.util.concurrent.CompletableFuture) to Android APIs < 24 (Android 7.0 Nougat)'
     tags = ['android', 'retrofit', 'backport']

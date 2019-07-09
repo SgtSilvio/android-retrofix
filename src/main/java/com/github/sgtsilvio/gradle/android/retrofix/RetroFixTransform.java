@@ -36,7 +36,7 @@ class RetroFixTransform extends Transform {
 
     @Override
     public String getName() {
-        return "com.hivemq.gradle.java8retrofitter";
+        return "android-retrofix";
     }
 
     @Override
