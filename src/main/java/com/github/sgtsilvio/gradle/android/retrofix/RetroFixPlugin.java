@@ -1,9 +1,7 @@
 package com.github.sgtsilvio.gradle.android.retrofix;
 
+import com.android.build.gradle.AppExtension;
 import com.android.build.gradle.AppPlugin;
-import com.android.build.gradle.BaseExtension;
-import com.android.build.gradle.LibraryPlugin;
-
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -15,16 +13,21 @@ public class RetroFixPlugin implements Plugin<Project> {
 
     @Override
     public void apply(final Project project) {
-        final boolean isAndroid = project.getPlugins().hasPlugin(AppPlugin.class) ||
-                project.getPlugins().hasPlugin(LibraryPlugin.class);
+        final boolean isAndroid = project.getPlugins().hasPlugin(AppPlugin.class);
         if (!isAndroid) {
             throw new GradleException("'com.android.application' or 'com.android.library' plugin required.");
         }
 
-        final BaseExtension android = (BaseExtension) project.getExtensions().findByName("android");
+        final AppExtension android = (AppExtension) project.getExtensions().findByName("android");
         if (android == null) {
             throw new GradleException("'com.android.application' or 'com.android.library' plugin required.");
         }
         android.registerTransform(new RetroFixTransform(android));
+
+        project.afterEvaluate(project1 -> {
+            if (android.getDefaultConfig().getMinSdkVersion().getApiLevel() >= 24) {
+                throw new GradleException("the RetroFix plugin should not be used when the minSdkVersion >= 24");
+            }
+        });
     }
 }
