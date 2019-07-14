@@ -46,24 +46,41 @@ Backported new types:
 
 # How to use
 
+Configure your `app/build.gradle` like the following:
+
 ```groovy
-plugins {
-    id 'com.android.application'
-    id 'com.github.sgtsilvio.gradle.android-retrofix' version '0.2.0'
-    ...
+buildscript {
+    repositories {
+        google() // necessary as this plugin depends on the android gradle api
+        gradlePluginPortal() // where this plugin is hosted
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.sgtsilvio.gradle:android-retrofix:0.2.0"
+    }
 }
 
+apply plugin: 'com.android.application' // mandatory for android apps
+apply plugin: 'com.github.sgtsilvio.gradle.android-retrofix' // must be applied after com.android.application
+...
+
 android {
+    ...
+    defaultConfig {
+        ...
+        minSdkVersion 21 // has to be < 24, if you have 24+ this plugin is not needed
+        ...
+    }
+    ...
     compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
+        sourceCompatibility JavaVersion.VERSION_1_8 // enables lambdas, method references,
+        targetCompatibility JavaVersion.VERSION_1_8 //         default methods, static interface methods
     }
     ...
 }
 
 dependencies {
-    implementation 'net.sourceforge.streamsupport:android-retrostreams:1.7.1'
-    implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.1'
+    implementation 'net.sourceforge.streamsupport:android-retrostreams:1.7.1' // for backporting streams
+    implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.1' // for backporting future
     ...
 }
 ```
