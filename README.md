@@ -6,14 +6,12 @@ Backports Java 8 APIs to Android APIs &lt; 24 (Android 7.0 Nougat)
 
 Backported new types:
 - `java.lang.FuncionalInterface`
-- `java.util.DoubleSummaryStatistics`, `java.util.IntSummaryStatistics`, `java.util.LongSummaryStatistics`
+- `java.util.IntSummaryStatistics`, `java.util.DoubleSummaryStatistics`, `java.util.LongSummaryStatistics`
 - `java.util.Optional**`
 - `java.util.PrimitiveIterator**`
 - `java.util.Spliterator**`
 - `java.util.SplittableRandom`
 - `java.util.StringJoiner`
-- `java.util.function.**`
-- `java.util.stream.**`
 - `java.util.concurrent.CountedCompleter`
 - `java.util.concurrent.ForkJoinPool`
 - `java.util.concurrent.ForkJoinTask`
@@ -21,13 +19,13 @@ Backported new types:
 - `java.util.concurrent.RecursiveAction`
 - `java.util.concurrent.RecursiveTask`
 - `java.util.concurrent.ThreadLocalRandom`
+- `java.util.function.**`
+- `java.util.stream.**`
 
 Backported static/default methods of:
 - `java.lang.Arrays`
-- `java.lang.Double`
-- `java.lang.Integer`
+- `java.lang.Integer`, `java.lang.Double`, `java.lang.Long`
 - `java.lang.Iterable`
-- `java.lang.Long`
 - `java.lang.Objects`
 - `java.util.Collection`
 - `java.util.Comparator`
