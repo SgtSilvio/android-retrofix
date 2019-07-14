@@ -5,6 +5,7 @@ import com.android.build.gradle.AppPlugin;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Silvio Giebl
@@ -12,10 +13,10 @@ import org.gradle.api.Project;
 public class RetroFixPlugin implements Plugin<Project> {
 
     @Override
-    public void apply(final Project project) {
+    public void apply(final @NotNull Project project) {
         final boolean isAndroid = project.getPlugins().hasPlugin(AppPlugin.class);
         if (!isAndroid) {
-            throw new GradleException("'com.android.application' or 'com.android.library' plugin required.");
+            throw new GradleException("'com>.android.application' or 'com.android.library' plugin required.");
         }
 
         final AppExtension android = (AppExtension) project.getExtensions().findByName("android");
