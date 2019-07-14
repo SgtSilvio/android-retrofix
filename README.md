@@ -60,7 +60,7 @@ buildscript {
 }
 
 apply plugin: 'com.android.application' // mandatory for android apps
-apply plugin: 'com.github.sgtsilvio.gradle.android-retrofix' // must be applied after com.android.application
+apply plugin: 'com.github.sgtsilvio.gradle.android-retrofix' // should be applied after com.android.application
 ...
 
 android {

@@ -1,34 +1,49 @@
 package com.github.sgtsilvio.gradle.android.retrofix;
 
-import com.android.build.gradle.AppExtension;
 import com.android.build.gradle.AppPlugin;
+
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Silvio Giebl
  */
 public class RetroFixPlugin implements Plugin<Project> {
 
+    private static final @NotNull Logger logger = Logging.getLogger(RetroFixPlugin.class);
+
+    private @Nullable AppPlugin appPlugin;
+
     @Override
     public void apply(final @NotNull Project project) {
-        final boolean isAndroid = project.getPlugins().hasPlugin(AppPlugin.class);
-        if (!isAndroid) {
-            throw new GradleException("'com>.android.application' or 'com.android.library' plugin required.");
+        if (project.getPlugins().hasPlugin(AppPlugin.class)) {
+            init(project.getPlugins().getPlugin(AppPlugin.class));
+        } else {
+            project.getPlugins().whenPluginAdded(plugin -> {
+                if (plugin instanceof AppPlugin) {
+                    logger.warn("The 'com.android.application' plugin should be applied before the RetroFix plugin.");
+                    init((AppPlugin) plugin);
+                }
+            });
         }
-
-        final AppExtension android = (AppExtension) project.getExtensions().findByName("android");
-        if (android == null) {
-            throw new GradleException("'com.android.application' or 'com.android.library' plugin required.");
-        }
-        android.registerTransform(new RetroFixTransform(android));
 
         project.afterEvaluate(project1 -> {
-            if (android.getDefaultConfig().getMinSdkVersion().getApiLevel() >= 24) {
-                throw new GradleException("the RetroFix plugin should not be used when the minSdkVersion >= 24");
+            if (appPlugin == null) {
+                throw new GradleException("The RetroFix plugin requires the 'com.android.application' plugin.");
+            }
+            if (appPlugin.getExtension().getDefaultConfig().getMinSdkVersion().getApiLevel() >= 24) {
+                throw new GradleException("The RetroFix plugin should not be used when the minSdkVersion >= 24.");
             }
         });
+    }
+
+    private void init(final @NotNull AppPlugin appPlugin) {
+        this.appPlugin = appPlugin;
+        appPlugin.getExtension().registerTransform(new RetroFixTransform(appPlugin.getExtension()));
     }
 }
