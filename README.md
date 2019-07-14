@@ -49,7 +49,7 @@ Backported new types:
 ```groovy
 plugins {
     id 'com.android.application'
-    id 'com.github.sgtsilvio.gradle.android-retrofix' version '0.1.1'
+    id 'com.github.sgtsilvio.gradle.android-retrofix' version '0.2.0'
     ...
 }
 
