@@ -6,6 +6,7 @@ import com.android.utils.FileUtils;
 import com.github.sgtsilvio.gradle.android.retrofix.backport.Backport;
 import com.github.sgtsilvio.gradle.android.retrofix.backport.FutureBackport;
 import com.github.sgtsilvio.gradle.android.retrofix.backport.StreamsBackport;
+import com.github.sgtsilvio.gradle.android.retrofix.backport.TimeBackport;
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap;
 import com.github.sgtsilvio.gradle.android.retrofix.transform.TypeMap;
 import com.github.sgtsilvio.gradle.android.retrofix.util.Lambdas;
@@ -88,6 +89,9 @@ class RetroFixTransform extends Transform {
         }
         if (hasBackport("net.sourceforge.streamsupport:android-retrofuture", transformInvocation)) {
             backports.add(new FutureBackport());
+        }
+        if (hasBackport("org.threeten:threetenbp", transformInvocation)) {
+            backports.add(new TimeBackport());
         }
 
         final TypeMap typeMap = new TypeMap();

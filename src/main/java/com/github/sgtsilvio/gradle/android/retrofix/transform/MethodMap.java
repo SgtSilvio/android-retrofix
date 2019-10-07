@@ -40,23 +40,30 @@ public class MethodMap extends HashMap<String, MethodMap.Entry> {
         public @NotNull ForType redirect(
                 final @NotNull String method, final @NotNull String signature, final @NotNull String replacement) {
 
-            return redirect(method, signature, replacement, false);
+            return redirect(method, signature, replacement, method, false);
         }
 
         public @NotNull ForType redirectStatic(
                 final @NotNull String method, final @NotNull String signature, final @NotNull String replacement) {
 
-            return redirect(method, signature, replacement, true);
+            return redirect(method, signature, replacement, method, true);
+        }
+
+        public @NotNull ForType redirectStatic(
+                final @NotNull String method, final @NotNull String signature, final @NotNull String replacement,
+                final @NotNull String newMethod) {
+
+            return redirect(method, signature, replacement, newMethod, true);
         }
 
         private @NotNull ForType redirect(
                 final @NotNull String method, final @NotNull String signature, @NotNull String replacement,
-                final boolean isStatic) {
+                final @NotNull String newMethod, final boolean isStatic) {
 
             if (!signature.endsWith("V")) {
                 replacement = "$_ = " + replacement;
             }
-            put(method + " " + signature, type, replacement + "." + method + "(" + (isStatic ? "" : "$0,") + "$$);");
+            put(method + " " + signature, type, replacement + "." + newMethod + "(" + (isStatic ? "" : "$0,") + "$$);");
             return this;
         }
     }
