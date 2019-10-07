@@ -8,16 +8,17 @@ import com.github.sgtsilvio.gradle.android.retrofix.backport.FutureBackport;
 import com.github.sgtsilvio.gradle.android.retrofix.backport.StreamsBackport;
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap;
 import com.github.sgtsilvio.gradle.android.retrofix.transform.TypeMap;
+import com.github.sgtsilvio.gradle.android.retrofix.util.Lambdas;
 import com.google.common.collect.ImmutableSet;
-import javassist.*;
-import javassist.expr.ExprEditor;
-import javassist.expr.MethodCall;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.Modifier;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Zip;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -94,100 +95,82 @@ class RetroFixTransform extends Transform {
         backports.forEach(backport -> backport.map(typeMap, methodMap));
 
         transformInvocation.getInputs().forEach(transformInput -> {
-            transformInput.getDirectoryInputs().forEach(directoryInput -> {
-                try {
-                    final File outputDir = transformInvocation.getOutputProvider().getContentLocation(
-                            directoryInput.getName(), directoryInput.getContentTypes(), directoryInput.getScopes(), Format.DIRECTORY);
+            transformInput.getDirectoryInputs().forEach(Lambdas.consumer(directoryInput -> {
+                final File outputDir = transformInvocation.getOutputProvider().getContentLocation(
+                        directoryInput.getName(), directoryInput.getContentTypes(), directoryInput.getScopes(), Format.DIRECTORY);
 
-                    FileUtils.deleteRecursivelyIfExists(outputDir);
+                FileUtils.deleteRecursivelyIfExists(outputDir);
 
-                    final ClassPool classPool = new ClassPool();
-                    classPool.appendSystemPath();
-                    classPool.insertClassPath(directoryInput.getFile().getAbsolutePath());
-                    for (final String dep : deps) {
-                        classPool.insertClassPath(dep);
-                    }
-
-                    final Path inputPath = Paths.get(directoryInput.getFile().getAbsolutePath());
-                    Files.walk(inputPath)
-                            .filter(Files::isRegularFile)
-                            .map(inputPath::relativize)
-                            .filter(path -> {
-                                if (path.getFileName().toFile().getName().endsWith(".class")) {
-                                    return true;
-                                }
-                                try {
-                                    final File file = new File(outputDir, path.toString());
-                                    //noinspection ResultOfMethodCallIgnored
-                                    file.getParentFile().mkdirs();
-                                    Files.copy(path, file.toPath());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                return false;
-                            })
-                            .map(Path::toString)
-                            .map(s -> s.replaceAll("/", ".").replaceAll("\\\\", "."))
-                            .map(s -> s.substring(0, s.length() - ".class".length()))
-                            .forEach(s -> transformClass(classPool, s, typeMap, methodMap, outputDir));
-
-                } catch (final Exception e) {
-                    e.printStackTrace();
+                final ClassPool classPool = new ClassPool();
+                classPool.appendSystemPath();
+                classPool.insertClassPath(directoryInput.getFile().getAbsolutePath());
+                for (final String dep : deps) {
+                    classPool.insertClassPath(dep);
                 }
-            });
-            transformInput.getJarInputs().forEach(jarInput -> {
-                try {
-                    final File outputDir = transformInvocation.getOutputProvider().getContentLocation(
-                            jarInput.getName(), jarInput.getContentTypes(), jarInput.getScopes(), Format.DIRECTORY);
-                    final File outputJar = transformInvocation.getOutputProvider().getContentLocation(
-                            jarInput.getName(), jarInput.getContentTypes(), jarInput.getScopes(), Format.JAR);
 
-                    if ((jarInput.getStatus() == Status.NOTCHANGED) && outputJar.exists()) {
-                        return;
-                    }
-                    if (jarInput.getName().startsWith("net.sourceforge.streamsupport")) {
-                        FileUtils.copyFile(jarInput.getFile(), outputJar);
-                        return;
-                    }
-                    FileUtils.deleteRecursivelyIfExists(outputDir);
-                    FileUtils.deleteIfExists(outputJar);
+                final Path inputPath = Paths.get(directoryInput.getFile().getAbsolutePath());
+                Files.walk(inputPath)
+                        .filter(Files::isRegularFile)
+                        .map(inputPath::relativize)
+                        .filter(Lambdas.predicate(path -> {
+                            if (path.getFileName().toFile().getName().endsWith(".class")) {
+                                return true;
+                            }
+                            final File file = new File(outputDir, path.toString());
+                            //noinspection ResultOfMethodCallIgnored
+                            file.getParentFile().mkdirs();
+                            Files.copy(path, file.toPath());
+                            return false;
+                        }))
+                        .map(Path::toString)
+                        .map(s -> s.replaceAll("/", ".").replaceAll("\\\\", "."))
+                        .map(s -> s.substring(0, s.length() - ".class".length()))
+                        .forEach(Lambdas.consumer(s -> transformClass(classPool, s, typeMap, methodMap, outputDir)));
+            }));
+            transformInput.getJarInputs().forEach(Lambdas.consumer(jarInput -> {
+                final File outputDir = transformInvocation.getOutputProvider().getContentLocation(
+                        jarInput.getName(), jarInput.getContentTypes(), jarInput.getScopes(), Format.DIRECTORY);
+                final File outputJar = transformInvocation.getOutputProvider().getContentLocation(
+                        jarInput.getName(), jarInput.getContentTypes(), jarInput.getScopes(), Format.JAR);
 
-                    final ClassPool classPool = new ClassPool();
-                    classPool.appendSystemPath();
-                    classPool.insertClassPath(jarInput.getFile().getAbsolutePath());
-                    for (final String dep : deps) {
-                        classPool.insertClassPath(dep);
-                    }
-
-                    final ZipFile zipFile = new ZipFile(jarInput.getFile());
-                    zipFile.stream()
-                            .filter(entry -> !entry.isDirectory())
-                            .filter(entry -> {
-                                if (entry.getName().endsWith(".class")) {
-                                    return true;
-                                }
-                                try {
-                                    final File file = new File(outputDir, entry.getName());
-                                    //noinspection ResultOfMethodCallIgnored
-                                    file.getParentFile().mkdirs();
-                                    Files.copy(zipFile.getInputStream(entry), file.toPath());
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                                return false;
-                            })
-                            .map(ZipEntry::getName)
-                            .map(s -> s.replaceAll("/", ".").replaceAll("\\\\", "."))
-                            .map(s -> s.substring(0, s.length() - ".class".length()))
-                            .forEach(s -> transformClass(classPool, s, typeMap, methodMap, outputDir));
-
-                    zip(outputDir, outputJar);
-                    FileUtils.deleteRecursivelyIfExists(outputDir);
-
-                } catch (final Exception e) {
-                    e.printStackTrace();
+                if ((jarInput.getStatus() == Status.NOTCHANGED) && outputJar.exists()) {
+                    return;
                 }
-            });
+                if (jarInput.getName().startsWith("net.sourceforge.streamsupport")) {
+                    FileUtils.copyFile(jarInput.getFile(), outputJar);
+                    return;
+                }
+                FileUtils.deleteRecursivelyIfExists(outputDir);
+                FileUtils.deleteIfExists(outputJar);
+
+                final ClassPool classPool = new ClassPool();
+                classPool.appendSystemPath();
+                classPool.insertClassPath(jarInput.getFile().getAbsolutePath());
+                for (final String dep : deps) {
+                    classPool.insertClassPath(dep);
+                }
+
+                final ZipFile zipFile = new ZipFile(jarInput.getFile());
+                zipFile.stream()
+                        .filter(entry -> !entry.isDirectory())
+                        .filter(Lambdas.predicate(entry -> {
+                            if (entry.getName().endsWith(".class")) {
+                                return true;
+                            }
+                            final File file = new File(outputDir, entry.getName());
+                            //noinspection ResultOfMethodCallIgnored
+                            file.getParentFile().mkdirs();
+                            Files.copy(zipFile.getInputStream(entry), file.toPath());
+                            return false;
+                        }))
+                        .map(ZipEntry::getName)
+                        .map(s -> s.replaceAll("/", ".").replaceAll("\\\\", "."))
+                        .map(s -> s.substring(0, s.length() - ".class".length()))
+                        .forEach(Lambdas.consumer(s -> transformClass(classPool, s, typeMap, methodMap, outputDir)));
+
+                zip(outputDir, outputJar);
+                FileUtils.deleteRecursivelyIfExists(outputDir);
+            }));
         });
     }
 
@@ -201,65 +184,44 @@ class RetroFixTransform extends Transform {
 
     private static void transformClass(
             final @NotNull ClassPool classPool, final @NotNull String className, final @NotNull TypeMap classMap,
-            final @NotNull MethodMap redirectMap, final @NotNull File outputDir) {
+            final @NotNull MethodMap redirectMap, final @NotNull File outputDir) throws Exception {
 
-        try {
-            final CtClass ctClass = classPool.get(className);
+        final CtClass ctClass = classPool.get(className);
 
-            final HashMap<Integer, String> replaceMap = new HashMap<>();
+        final HashMap<Integer, String> replaceMap = new HashMap<>();
 
-            ctClass.instrument(new ExprEditor() {
-                private int c = 0;
-
-                @Override
-                public void edit(final MethodCall m) {
-                    final String key = m.getMethodName() + " " + m.getSignature();
-                    MethodMap.Entry redirectEntry = redirectMap.get(key);
-                    while (redirectEntry != null) {
-                        try {
-                            final CtMethod method = m.getMethod();
-                            final CtClass declaringClass = method.getDeclaringClass();
-                            final boolean matches;
-                            if (Modifier.isStatic(method.getModifiers())) {
-                                matches = declaringClass.getName().equals(redirectEntry.type);
-                            } else {
-                                matches = declaringClass.subtypeOf(declaringClass.getClassPool().get(redirectEntry.type));
-                            }
-                            if (matches) {
-                                replaceMap.put(c, redirectEntry.replacement);
-                                break;
-                            }
-                            redirectEntry = redirectEntry.next;
-                        } catch (final NotFoundException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    c++;
+        ctClass.instrument(Lambdas.methodEditor((m, c) -> {
+            final String key = m.getMethodName() + " " + m.getSignature();
+            MethodMap.Entry redirectEntry = redirectMap.get(key);
+            while (redirectEntry != null) {
+                final CtMethod method = m.getMethod();
+                final CtClass declaringClass = method.getDeclaringClass();
+                final boolean matches;
+                if (Modifier.isStatic(method.getModifiers())) {
+                    matches = declaringClass.getName().equals(redirectEntry.type);
+                } else {
+                    matches = declaringClass.subtypeOf(declaringClass.getClassPool().get(redirectEntry.type));
                 }
-            });
-
-            ctClass.getClassFile().renameClass(classMap);
-
-            ctClass.instrument(new ExprEditor() {
-                private int c = 0;
-
-                @Override
-                public void edit(final MethodCall m) throws CannotCompileException {
-                    final String replacement = replaceMap.get(c);
-                    if (replacement != null) {
-                        m.replace(replacement);
-                    }
-                    c++;
+                if (matches) {
+                    replaceMap.put(c, redirectEntry.replacement);
+                    break;
                 }
-            });
+                redirectEntry = redirectEntry.next;
+            }
+        }));
 
-            ctClass.getClassFile().compact();
+        ctClass.getClassFile().renameClass(classMap);
 
-            ctClass.writeFile(outputDir.getAbsolutePath());
+        ctClass.instrument(Lambdas.methodEditor((m, c) -> {
+            final String replacement = replaceMap.get(c);
+            if (replacement != null) {
+                m.replace(replacement);
+            }
+        }));
 
-        } catch (final Exception e) {
-            e.printStackTrace();
-        }
+        ctClass.getClassFile().compact();
+
+        ctClass.writeFile(outputDir.getAbsolutePath());
     }
 
     private static void zip(final @NotNull File inputDir, final @NotNull File outputFile) {
