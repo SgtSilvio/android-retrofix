@@ -42,6 +42,25 @@ Backported new types:
 - `java.util.concurrent.CompletionException`
 - `java.util.concurrent.CompletionStage`
 
+## [threetenbp](https://github.com/ThreeTen/threetenbp)
+
+Backported new types:
+- `java.time.**`
+- `java.time.chrono.**`
+- `java.time.format.**`
+- `java.time.temporal.**`
+- `java.time.zone.**`
+
+Backported conversion methods of:
+- `java.util.Date`
+- `java.util.Calendar`
+- `java.util.GregorianCalendar`
+- `java.util.TimeZone`
+- `java.sql.Date`
+- `java.sql.Time`
+- `java.sql.Timestamp`
+
+
 # How to use
 
 Configure your `app/build.gradle` like the following:
