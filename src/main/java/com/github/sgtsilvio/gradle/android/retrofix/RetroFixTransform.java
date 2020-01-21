@@ -115,17 +115,17 @@ class RetroFixTransform extends Transform {
                 final Path inputPath = Paths.get(directoryInput.getFile().getAbsolutePath());
                 Files.walk(inputPath)
                         .filter(Files::isRegularFile)
-                        .map(inputPath::relativize)
                         .filter(Lambdas.predicate(path -> {
                             if (path.getFileName().toFile().getName().endsWith(".class")) {
                                 return true;
                             }
-                            final File file = new File(outputDir, path.toString());
+                            final File file = new File(outputDir, inputPath.relativize(path).toString());
                             //noinspection ResultOfMethodCallIgnored
                             file.getParentFile().mkdirs();
                             Files.copy(path, file.toPath());
                             return false;
                         }))
+                        .map(inputPath::relativize)
                         .map(Path::toString)
                         .map(s -> s.replaceAll("/", ".").replaceAll("\\\\", "."))
                         .map(s -> s.substring(0, s.length() - ".class".length()))
@@ -187,8 +187,8 @@ class RetroFixTransform extends Transform {
     }
 
     private static void transformClass(
-            final @NotNull ClassPool classPool, final @NotNull String className, final @NotNull TypeMap classMap,
-            final @NotNull MethodMap redirectMap, final @NotNull File outputDir) throws Exception {
+            final @NotNull ClassPool classPool, final @NotNull String className, final @NotNull TypeMap typeMap,
+            final @NotNull MethodMap methodMap, final @NotNull File outputDir) throws Exception {
 
         final CtClass ctClass = classPool.get(className);
 
@@ -196,25 +196,25 @@ class RetroFixTransform extends Transform {
 
         ctClass.instrument(Lambdas.methodEditor((m, c) -> {
             final String key = m.getMethodName() + " " + m.getSignature();
-            MethodMap.Entry redirectEntry = redirectMap.get(key);
-            while (redirectEntry != null) {
+            MethodMap.Entry methodMapEntry = methodMap.get(key);
+            while (methodMapEntry != null) {
                 final CtMethod method = m.getMethod();
                 final CtClass declaringClass = method.getDeclaringClass();
                 final boolean matches;
                 if (Modifier.isStatic(method.getModifiers())) {
-                    matches = declaringClass.getName().equals(redirectEntry.type);
+                    matches = declaringClass.getName().equals(methodMapEntry.type);
                 } else {
-                    matches = declaringClass.subtypeOf(declaringClass.getClassPool().get(redirectEntry.type));
+                    matches = declaringClass.subtypeOf(declaringClass.getClassPool().get(methodMapEntry.type));
                 }
                 if (matches) {
-                    replaceMap.put(c, redirectEntry.replacement);
+                    replaceMap.put(c, methodMapEntry.replacement);
                     break;
                 }
-                redirectEntry = redirectEntry.next;
+                methodMapEntry = methodMapEntry.next;
             }
         }));
 
-        ctClass.getClassFile().renameClass(classMap);
+        ctClass.getClassFile().renameClass(typeMap);
 
         ctClass.instrument(Lambdas.methodEditor((m, c) -> {
             final String replacement = replaceMap.get(c);
