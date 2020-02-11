@@ -164,7 +164,7 @@ class RetroFixTransform extends Transform {
                 zipFile.stream()
                         .filter(entry -> !entry.isDirectory())
                         .filter(Lambdas.predicate(entry -> {
-                            if (entry.getName().endsWith(".class")) {
+                            if (entry.getName().endsWith(".class") && !entry.getName().startsWith("META-INF/")) {
                                 return true;
                             }
                             final File file = new File(outputDir, entry.getName());
@@ -174,13 +174,7 @@ class RetroFixTransform extends Transform {
                             return false;
                         }))
                         .map(ZipEntry::getName)
-                        .map(s -> {
-                            if (s.startsWith("META-INF/versions/")) {
-                                final String substring = s.substring("META-INF/versions/".length());
-                                s = substring.substring(substring.indexOf("/") + 1);
-                            }
-                            return s.replaceAll("/", ".").replaceAll("\\\\", ".");
-                        })
+                        .map(s -> s.replaceAll("/", ".").replaceAll("\\\\", "."))
                         .map(s -> s.substring(0, s.length() - ".class".length()))
                         .forEach(Lambdas.consumer(s -> transformClass(classPool, s, typeMap, methodMap, outputDir)));
 
