@@ -104,6 +104,9 @@ class RetroFixTransform extends Transform {
                         directoryInput.getName(), directoryInput.getContentTypes(), directoryInput.getScopes(), Format.DIRECTORY);
 
                 FileUtils.deleteRecursivelyIfExists(outputDir);
+                if (!outputDir.mkdirs()) {
+                    throw new RuntimeException("Could not create output directory");
+                }
 
                 final ClassPool classPool = new ClassPool();
                 classPool.appendSystemPath();
@@ -146,6 +149,9 @@ class RetroFixTransform extends Transform {
                 }
                 FileUtils.deleteRecursivelyIfExists(outputDir);
                 FileUtils.deleteIfExists(outputJar);
+                if (!outputDir.mkdirs()) {
+                    throw new RuntimeException("Could not create output directory");
+                }
 
                 final ClassPool classPool = new ClassPool();
                 classPool.appendSystemPath();
