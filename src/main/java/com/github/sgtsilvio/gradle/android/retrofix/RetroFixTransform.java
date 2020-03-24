@@ -20,6 +20,7 @@ import org.apache.tools.ant.taskdefs.Zip;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -72,7 +73,7 @@ class RetroFixTransform extends Transform {
     }
 
     @Override
-    public void transform(final @NotNull TransformInvocation transformInvocation) {
+    public void transform(final @NotNull TransformInvocation transformInvocation) throws IOException {
         final Stream<File> depsStream = Stream.concat(
                 transformInvocation.getReferencedInputs().stream().map(TransformInput::getJarInputs),
                 transformInvocation.getReferencedInputs().stream().map(TransformInput::getDirectoryInputs))
@@ -97,6 +98,10 @@ class RetroFixTransform extends Transform {
         final TypeMap typeMap = new TypeMap();
         final MethodMap methodMap = new MethodMap();
         backports.forEach(backport -> backport.map(typeMap, methodMap));
+
+        if (!transformInvocation.isIncremental()) {
+            transformInvocation.getOutputProvider().deleteAll();
+        }
 
         transformInvocation.getInputs().forEach(transformInput -> {
             transformInput.getDirectoryInputs().forEach(Lambdas.consumer(directoryInput -> {
@@ -149,6 +154,9 @@ class RetroFixTransform extends Transform {
                 }
                 FileUtils.deleteRecursivelyIfExists(outputDir);
                 FileUtils.deleteIfExists(outputJar);
+                if (jarInput.getStatus() == Status.REMOVED) {
+                    return;
+                }
                 if (!outputDir.mkdirs()) {
                     throw new RuntimeException("Could not create output directory");
                 }
