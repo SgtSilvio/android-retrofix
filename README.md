@@ -101,7 +101,7 @@ dependencies {
     implementation 'net.sourceforge.streamsupport:android-retrostreams:1.7.2' // for backporting streams
     implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.2' // for backporting future
     implementation 'org.threeten:threetenbp:1.4.4' // for backporting time
-    // or implementation 'com.jakewharton.threetenabp:threetenabp:1.2.1' // https://github.com/JakeWharton/ThreeTenABP
+    // or implementation 'com.jakewharton.threetenabp:threetenabp:1.2.4' // https://github.com/JakeWharton/ThreeTenABP
     ...
 }
 ```
