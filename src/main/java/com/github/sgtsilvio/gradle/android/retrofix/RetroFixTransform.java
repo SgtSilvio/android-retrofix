@@ -172,7 +172,8 @@ class RetroFixTransform extends Transform {
                 zipFile.stream()
                         .filter(entry -> !entry.isDirectory())
                         .filter(Lambdas.predicate(entry -> {
-                            if (entry.getName().endsWith(".class") && !entry.getName().startsWith("META-INF/")) {
+                            if (entry.getName().endsWith(".class") && !entry.getName().startsWith("META-INF/")
+                                    && !entry.getName().startsWith("META-INF\\")) {
                                 return true;
                             }
                             final File file = new File(outputDir, entry.getName());
