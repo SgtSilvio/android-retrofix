@@ -18,6 +18,8 @@ import javassist.Modifier;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Zip;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +36,8 @@ import java.util.zip.ZipFile;
  * @author Silvio Giebl
  */
 class RetroFixTransform extends Transform {
+
+    private static final @NotNull Logger logger = LoggerFactory.getLogger(RetroFixTransform.class);
 
     private final @NotNull BaseExtension android;
 
@@ -86,12 +90,15 @@ class RetroFixTransform extends Transform {
 
         final List<Backport> backports = new LinkedList<>();
         if (hasBackport("net.sourceforge.streamsupport:android-retrostreams", transformInvocation)) {
+            logger.info("Backporting android-retrostreams");
             backports.add(new StreamsBackport());
         }
         if (hasBackport("net.sourceforge.streamsupport:android-retrofuture", transformInvocation)) {
+            logger.info("Backporting android-retrofuture");
             backports.add(new FutureBackport());
         }
         if (hasBackport("org.threeten:threetenbp", transformInvocation)) {
+            logger.info("Backporting threetenbp");
             backports.add(new TimeBackport());
         }
 
@@ -112,6 +119,7 @@ class RetroFixTransform extends Transform {
                 if (!outputDir.mkdirs()) {
                     throw new RuntimeException("Could not create output directory");
                 }
+                logger.info("Transforming directory {}", directoryInput.getName());
 
                 final ClassPool classPool = new ClassPool();
                 classPool.appendSystemPath();
@@ -127,7 +135,9 @@ class RetroFixTransform extends Transform {
                             if (path.getFileName().toFile().getName().endsWith(".class")) {
                                 return true;
                             }
-                            final File file = new File(outputDir, inputPath.relativize(path).toString());
+                            final String filePath = inputPath.relativize(path).toString();
+                            logger.info("Copying file {}", filePath);
+                            final File file = new File(outputDir, filePath);
                             //noinspection ResultOfMethodCallIgnored
                             file.getParentFile().mkdirs();
                             Files.copy(path, file.toPath());
@@ -160,6 +170,7 @@ class RetroFixTransform extends Transform {
                 if (!outputDir.mkdirs()) {
                     throw new RuntimeException("Could not create output directory");
                 }
+                logger.info("Transforming jar {}", jarInput.getName());
 
                 final ClassPool classPool = new ClassPool();
                 classPool.appendSystemPath();
@@ -176,6 +187,7 @@ class RetroFixTransform extends Transform {
                                     && !entry.getName().startsWith("META-INF\\")) {
                                 return true;
                             }
+                            logger.info("Copying file {}", entry.getName());
                             final File file = new File(outputDir, entry.getName());
                             //noinspection ResultOfMethodCallIgnored
                             file.getParentFile().mkdirs();
@@ -205,6 +217,7 @@ class RetroFixTransform extends Transform {
             final @NotNull ClassPool classPool, final @NotNull String className, final @NotNull TypeMap typeMap,
             final @NotNull MethodMap methodMap, final @NotNull File outputDir) throws Exception {
 
+        logger.info("Transforming class {}", className);
         final CtClass ctClass = classPool.get(className);
 
         final HashMap<Integer, String> replaceMap = new HashMap<>();
