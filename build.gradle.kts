@@ -13,7 +13,7 @@ java {
 
 repositories {
     google()
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -26,10 +26,10 @@ dependencies {
 gradlePlugin {
     plugins {
         create("android-retrofix") {
-            id = "${group}.${name}"
+            id = "$group.$name"
             displayName = "Android RetroFix"
             description = project.description
-            implementationClass = "${group}.android.retrofix.RetroFixPlugin"
+            implementationClass = "$group.android.retrofix.RetroFixPlugin"
         }
     }
 }
