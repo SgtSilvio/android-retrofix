@@ -2,7 +2,6 @@ package com.github.sgtsilvio.gradle.android.retrofix;
 
 import com.android.build.api.transform.*;
 import com.android.build.gradle.BaseExtension;
-import com.android.utils.FileUtils;
 import com.github.sgtsilvio.gradle.android.retrofix.backport.Backport;
 import com.github.sgtsilvio.gradle.android.retrofix.backport.FutureBackport;
 import com.github.sgtsilvio.gradle.android.retrofix.backport.StreamsBackport;
@@ -10,11 +9,10 @@ import com.github.sgtsilvio.gradle.android.retrofix.backport.TimeBackport;
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap;
 import com.github.sgtsilvio.gradle.android.retrofix.transform.TypeMap;
 import com.github.sgtsilvio.gradle.android.retrofix.util.Lambdas;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.Modifier;
+import javassist.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Zip;
 import org.jetbrains.annotations.NotNull;
@@ -26,9 +24,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -64,47 +62,36 @@ class RetroFixTransform extends Transform {
     }
 
     @Override
-    public @NotNull Set<? super QualifiedContent.Scope> getReferencedScopes() {
-        return ImmutableSet.of(
-                QualifiedContent.Scope.PROJECT,
-                QualifiedContent.Scope.SUB_PROJECTS,
-                QualifiedContent.Scope.EXTERNAL_LIBRARIES);
-    }
-
-    @Override
     public boolean isIncremental() {
         return true;
     }
 
     @Override
     public void transform(final @NotNull TransformInvocation transformInvocation) throws IOException {
-        final Stream<File> depsStream = Stream.concat(
-                transformInvocation.getReferencedInputs().stream().map(TransformInput::getJarInputs),
-                transformInvocation.getReferencedInputs().stream().map(TransformInput::getDirectoryInputs))
-                .flatMap(Collection::stream)
-                .map(QualifiedContent::getFile);
+        final ClassPool classPool = new ClassPool();
+        classPool.appendSystemPath();
+        try {
+            for (final File file : android.getBootClasspath()) {
+                classPool.insertClassPath(file.getAbsolutePath());
+            }
+            for (final TransformInput input : transformInvocation.getInputs()) {
+                for (final JarInput jarInput : input.getJarInputs()) {
+                    classPool.insertClassPath(jarInput.getFile().getAbsolutePath());
+                }
+                for (final DirectoryInput directoryInput : input.getDirectoryInputs()) {
+                    classPool.insertClassPath(directoryInput.getFile().getAbsolutePath());
+                }
+            }
+        } catch (final NotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
-        final List<String> deps = Stream.concat(android.getBootClasspath().stream(), depsStream)
-                .map(File::getAbsolutePath)
-                .collect(Collectors.toList());
-
-        final List<Backport> backports = new LinkedList<>();
-        if (hasBackport("net.sourceforge.streamsupport:android-retrostreams", transformInvocation)) {
-            logger.info("Backporting android-retrostreams");
-            backports.add(new StreamsBackport());
-        }
-        if (hasBackport("net.sourceforge.streamsupport:android-retrofuture", transformInvocation)) {
-            logger.info("Backporting android-retrofuture");
-            backports.add(new FutureBackport());
-        }
-        if (hasBackport("org.threeten:threetenbp", transformInvocation)) {
-            logger.info("Backporting threetenbp");
-            backports.add(new TimeBackport());
-        }
+        final List<Backport> backports =
+                ImmutableList.of(new StreamsBackport(), new FutureBackport(), new TimeBackport());
 
         final TypeMap typeMap = new TypeMap();
         final MethodMap methodMap = new MethodMap();
-        backports.forEach(backport -> backport.map(typeMap, methodMap));
+        backports.forEach(backport -> backport.apply(classPool, typeMap, methodMap));
 
         if (!transformInvocation.isIncremental()) {
             transformInvocation.getOutputProvider().deleteAll();
@@ -115,18 +102,13 @@ class RetroFixTransform extends Transform {
                 final File outputDir = transformInvocation.getOutputProvider().getContentLocation(
                         directoryInput.getName(), directoryInput.getContentTypes(), directoryInput.getScopes(), Format.DIRECTORY);
 
-                FileUtils.deleteRecursivelyIfExists(outputDir);
+                if (outputDir.exists()) {
+                    FileUtils.deleteDirectory(outputDir);
+                }
                 if (!outputDir.mkdirs()) {
                     throw new RuntimeException("Could not create output directory");
                 }
                 logger.info("Transforming directory {}", directoryInput.getName());
-
-                final ClassPool classPool = new ClassPool();
-                classPool.appendSystemPath();
-                classPool.insertClassPath(directoryInput.getFile().getAbsolutePath());
-                for (final String dep : deps) {
-                    classPool.insertClassPath(dep);
-                }
 
                 final Path inputPath = Paths.get(directoryInput.getFile().getAbsolutePath());
                 Files.walk(inputPath)
@@ -158,12 +140,12 @@ class RetroFixTransform extends Transform {
                 if ((jarInput.getStatus() == Status.NOTCHANGED) && outputJar.exists()) {
                     return;
                 }
-                if (jarInput.getName().startsWith("net.sourceforge.streamsupport")) {
-                    FileUtils.copyFile(jarInput.getFile(), outputJar);
-                    return;
+                if (outputDir.exists()) {
+                    FileUtils.deleteDirectory(outputDir);
                 }
-                FileUtils.deleteRecursivelyIfExists(outputDir);
-                FileUtils.deleteIfExists(outputJar);
+                if (outputJar.exists()) {
+                    FileUtils.delete(outputJar);
+                }
                 if (jarInput.getStatus() == Status.REMOVED) {
                     return;
                 }
@@ -171,13 +153,6 @@ class RetroFixTransform extends Transform {
                     throw new RuntimeException("Could not create output directory");
                 }
                 logger.info("Transforming jar {}", jarInput.getName());
-
-                final ClassPool classPool = new ClassPool();
-                classPool.appendSystemPath();
-                classPool.insertClassPath(jarInput.getFile().getAbsolutePath());
-                for (final String dep : deps) {
-                    classPool.insertClassPath(dep);
-                }
 
                 final ZipFile zipFile = new ZipFile(jarInput.getFile());
                 zipFile.stream()
@@ -200,17 +175,9 @@ class RetroFixTransform extends Transform {
                         .forEach(Lambdas.consumer(s -> transformClass(classPool, s, typeMap, methodMap, outputDir)));
 
                 zip(outputDir, outputJar);
-                FileUtils.deleteRecursivelyIfExists(outputDir);
+                FileUtils.deleteDirectory(outputDir);
             }));
         });
-    }
-
-    private static boolean hasBackport(
-            final @NotNull String name, final @NotNull TransformInvocation transformInvocation) {
-
-        return transformInvocation.getInputs().stream()
-                .flatMap(transformInput -> transformInput.getJarInputs().stream())
-                .anyMatch(jarInput -> jarInput.getName().startsWith(name));
     }
 
     private static void transformClass(

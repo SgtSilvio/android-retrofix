@@ -2,16 +2,26 @@ package com.github.sgtsilvio.gradle.android.retrofix.backport;
 
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap;
 import com.github.sgtsilvio.gradle.android.retrofix.transform.TypeMap;
+import javassist.ClassPool;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Silvio Giebl
  */
 public class FutureBackport implements Backport {
 
+    private static final @NotNull Logger logger = LoggerFactory.getLogger(FutureBackport.class);
+
     @Override
-    public void map(final @NotNull TypeMap typeMap, final @NotNull MethodMap methodMap) {
-        mapTypes(typeMap);
+    public void apply(
+            final @NotNull ClassPool classPool, final @NotNull TypeMap typeMap, final @NotNull MethodMap methodMap) {
+
+        if (classPool.getOrNull("java9/util/concurrent/CompletableFuture") != null) {
+            logger.info("Backporting android-retrofuture");
+            mapTypes(typeMap);
+        }
     }
 
     private static void mapTypes(final @NotNull TypeMap map) {

@@ -2,6 +2,7 @@ package com.github.sgtsilvio.gradle.android.retrofix.backport;
 
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap;
 import com.github.sgtsilvio.gradle.android.retrofix.transform.TypeMap;
+import javassist.ClassPool;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -9,5 +10,5 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface Backport {
 
-    void map(@NotNull TypeMap typeMap, @NotNull MethodMap methodMap);
+    void apply(@NotNull ClassPool classPool, @NotNull TypeMap typeMap, @NotNull MethodMap methodMap);
 }

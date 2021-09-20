@@ -2,17 +2,27 @@ package com.github.sgtsilvio.gradle.android.retrofix.backport;
 
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap;
 import com.github.sgtsilvio.gradle.android.retrofix.transform.TypeMap;
+import javassist.ClassPool;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Silvio Giebl
  */
 public class TimeBackport implements Backport {
 
+    private static final @NotNull Logger logger = LoggerFactory.getLogger(TimeBackport.class);
+
     @Override
-    public void map(final @NotNull TypeMap typeMap, final @NotNull MethodMap methodMap) {
-        mapTypes(typeMap);
-        mapMethods(methodMap);
+    public void apply(
+            final @NotNull ClassPool classPool, final @NotNull TypeMap typeMap, final @NotNull MethodMap methodMap) {
+
+        if (classPool.getOrNull("org/threeten/bp/Clock") != null) {
+            logger.info("Backporting threetenbp");
+            mapTypes(typeMap);
+            mapMethods(methodMap);
+        }
     }
 
     private void mapTypes(final @NotNull TypeMap map) {
