@@ -10,5 +10,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface Backport {
 
-    void apply(@NotNull ClassPool classPool, @NotNull TypeMap typeMap, @NotNull MethodMap methodMap);
+    boolean isPresent(@NotNull ClassPool classPool);
+
+    void apply(@NotNull TypeMap typeMap, @NotNull MethodMap methodMap);
 }

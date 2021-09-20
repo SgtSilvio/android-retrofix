@@ -15,14 +15,15 @@ public class StreamsBackport implements Backport {
     private static final @NotNull Logger logger = LoggerFactory.getLogger(StreamsBackport.class);
 
     @Override
-    public void apply(
-            final @NotNull ClassPool classPool, final @NotNull TypeMap typeMap, final @NotNull MethodMap methodMap) {
+    public boolean isPresent(@NotNull final ClassPool classPool) {
+        return classPool.find("java9/lang/FunctionalInterface") != null;
+    }
 
-        if (classPool.getOrNull("java9/lang/FunctionalInterface") != null) {
-            logger.info("Backporting android-retrostreams");
-            mapTypes(typeMap);
-            mapMethods(methodMap);
-        }
+    @Override
+    public void apply(final @NotNull TypeMap typeMap, final @NotNull MethodMap methodMap) {
+        logger.info("Backporting android-retrostreams");
+        mapTypes(typeMap);
+        mapMethods(methodMap);
     }
 
     private static void mapTypes(final @NotNull TypeMap map) {

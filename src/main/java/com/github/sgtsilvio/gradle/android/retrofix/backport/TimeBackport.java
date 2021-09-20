@@ -15,14 +15,15 @@ public class TimeBackport implements Backport {
     private static final @NotNull Logger logger = LoggerFactory.getLogger(TimeBackport.class);
 
     @Override
-    public void apply(
-            final @NotNull ClassPool classPool, final @NotNull TypeMap typeMap, final @NotNull MethodMap methodMap) {
+    public boolean isPresent(@NotNull final ClassPool classPool) {
+        return classPool.find("org/threeten/bp/Clock") != null;
+    }
 
-        if (classPool.getOrNull("org/threeten/bp/Clock") != null) {
-            logger.info("Backporting threetenbp");
-            mapTypes(typeMap);
-            mapMethods(methodMap);
-        }
+    @Override
+    public void apply(final @NotNull TypeMap typeMap, final @NotNull MethodMap methodMap) {
+        logger.info("Backporting threetenbp");
+        mapTypes(typeMap);
+        mapMethods(methodMap);
     }
 
     private void mapTypes(final @NotNull TypeMap map) {

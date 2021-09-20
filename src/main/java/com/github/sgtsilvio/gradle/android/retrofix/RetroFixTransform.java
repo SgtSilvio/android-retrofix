@@ -9,7 +9,6 @@ import com.github.sgtsilvio.gradle.android.retrofix.backport.TimeBackport;
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap;
 import com.github.sgtsilvio.gradle.android.retrofix.transform.TypeMap;
 import com.github.sgtsilvio.gradle.android.retrofix.util.Lambdas;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import javassist.*;
 import org.apache.commons.io.FileUtils;
@@ -25,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.zip.ZipEntry;
@@ -68,6 +68,13 @@ class RetroFixTransform extends Transform {
 
     @Override
     public void transform(final @NotNull TransformInvocation transformInvocation) throws IOException {
+        final List<Backport> backports = new LinkedList<>();
+        backports.add(new StreamsBackport());
+        backports.add(new FutureBackport());
+        backports.add(new TimeBackport());
+        final List<Backport> presentBackports = new LinkedList<>();
+        final List<JarInput> backportJars = new LinkedList<>();
+
         final ClassPool classPool = new ClassPool();
         classPool.appendSystemPath();
         try {
@@ -77,6 +84,14 @@ class RetroFixTransform extends Transform {
             for (final TransformInput input : transformInvocation.getInputs()) {
                 for (final JarInput jarInput : input.getJarInputs()) {
                     classPool.insertClassPath(jarInput.getFile().getAbsolutePath());
+                    backports.removeIf(backport -> {
+                        if (backport.isPresent(classPool)) {
+                            presentBackports.add(backport);
+                            backportJars.add(jarInput);
+                            return true;
+                        }
+                        return false;
+                    });
                 }
                 for (final DirectoryInput directoryInput : input.getDirectoryInputs()) {
                     classPool.insertClassPath(directoryInput.getFile().getAbsolutePath());
@@ -86,12 +101,9 @@ class RetroFixTransform extends Transform {
             throw new RuntimeException(e);
         }
 
-        final List<Backport> backports =
-                ImmutableList.of(new StreamsBackport(), new FutureBackport(), new TimeBackport());
-
         final TypeMap typeMap = new TypeMap();
         final MethodMap methodMap = new MethodMap();
-        backports.forEach(backport -> backport.apply(classPool, typeMap, methodMap));
+        presentBackports.forEach(backport -> backport.apply(typeMap, methodMap));
 
         if (!transformInvocation.isIncremental()) {
             transformInvocation.getOutputProvider().deleteAll();
@@ -138,6 +150,10 @@ class RetroFixTransform extends Transform {
                         jarInput.getName(), jarInput.getContentTypes(), jarInput.getScopes(), Format.JAR);
 
                 if ((jarInput.getStatus() == Status.NOTCHANGED) && outputJar.exists()) {
+                    return;
+                }
+                if (backportJars.contains(jarInput)) {
+                    FileUtils.copyFile(jarInput.getFile(), outputJar);
                     return;
                 }
                 if (outputDir.exists()) {

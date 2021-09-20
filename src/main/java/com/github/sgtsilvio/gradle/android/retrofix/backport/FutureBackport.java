@@ -15,13 +15,14 @@ public class FutureBackport implements Backport {
     private static final @NotNull Logger logger = LoggerFactory.getLogger(FutureBackport.class);
 
     @Override
-    public void apply(
-            final @NotNull ClassPool classPool, final @NotNull TypeMap typeMap, final @NotNull MethodMap methodMap) {
+    public boolean isPresent(@NotNull final ClassPool classPool) {
+        return classPool.find("java9/util/concurrent/CompletableFuture") != null;
+    }
 
-        if (classPool.getOrNull("java9/util/concurrent/CompletableFuture") != null) {
-            logger.info("Backporting android-retrofuture");
-            mapTypes(typeMap);
-        }
+    @Override
+    public void apply(final @NotNull TypeMap typeMap, final @NotNull MethodMap methodMap) {
+        logger.info("Backporting android-retrofuture");
+        mapTypes(typeMap);
     }
 
     private static void mapTypes(final @NotNull TypeMap map) {
