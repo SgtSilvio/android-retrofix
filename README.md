@@ -74,12 +74,12 @@ buildscript {
         gradlePluginPortal() // where this plugin is hosted
     }
     dependencies {
-        classpath 'gradle.plugin.com.github.sgtsilvio.gradle:android-retrofix:0.3.6'
+        classpath 'gradle.plugin.com.github.sgtsilvio.gradle:android-retrofix:0.4.0'
     }
 }
 
 apply plugin: 'com.android.application' // mandatory for android apps
-apply plugin: 'com.github.sgtsilvio.gradle.android-retrofix' // should be applied after com.android.application
+apply plugin: 'com.github.sgtsilvio.gradle.android-retrofix'
 ...
 
 android {
@@ -98,10 +98,10 @@ android {
 }
 
 dependencies {
-    implementation 'net.sourceforge.streamsupport:android-retrostreams:1.7.2' // for backporting streams
-    implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.2' // for backporting future
-    implementation 'org.threeten:threetenbp:1.4.4' // for backporting time
-    // or implementation 'com.jakewharton.threetenabp:threetenabp:1.2.4' // https://github.com/JakeWharton/ThreeTenABP
+    implementation 'net.sourceforge.streamsupport:android-retrostreams:1.7.4' // for backporting streams
+    implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.4' // for backporting future
+    implementation 'org.threeten:threetenbp:1.5.1' // for backporting time
+    // or implementation 'com.jakewharton.threetenabp:threetenabp:1.3.1' // https://github.com/JakeWharton/ThreeTenABP
     ...
 }
 ```
