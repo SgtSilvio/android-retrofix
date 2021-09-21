@@ -37,10 +37,10 @@ class RetroFixTransform extends Transform {
 
     private static final @NotNull Logger logger = LoggerFactory.getLogger(RetroFixTransform.class);
 
-    private final @NotNull BaseExtension android;
+    private final @NotNull BaseExtension androidExtension;
 
-    RetroFixTransform(final @NotNull BaseExtension android) {
-        this.android = android;
+    RetroFixTransform(final @NotNull BaseExtension androidExtension) {
+        this.androidExtension = androidExtension;
     }
 
     @Override
@@ -78,7 +78,7 @@ class RetroFixTransform extends Transform {
         final ClassPool classPool = new ClassPool();
         classPool.appendSystemPath();
         try {
-            for (final File file : android.getBootClasspath()) {
+            for (final File file : androidExtension.getBootClasspath()) {
                 classPool.insertClassPath(file.getAbsolutePath());
             }
             for (final TransformInput input : transformInvocation.getInputs()) {
