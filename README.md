@@ -2,9 +2,30 @@
 
 [![Maven metadata URL](https://img.shields.io/maven-metadata/v?color=brightgreen&label=gradle%20plugin&metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fcom%2Fgithub%2Fsgtsilvio%2Fgradle%2Fandroid-retrofix%2Fcom.github.sgtsilvio.gradle.android-retrofix.gradle.plugin%2Fmaven-metadata.xml)](https://plugins.gradle.org/plugin/com.github.sgtsilvio.gradle.android-retrofix)
 
-Backports Java 8 APIs to Android APIs &lt; 24 (Android 7.0 Nougat)
+Seamlessly backports Java 8 APIs to Android below API 24 (Android 7.0 Nougat)
 
-## [android-retrostreams](https://github.com/retrostreams/android-retrostreams)
+Seamless means that you use the official Java 8 APIs, or libraries that internally use the official Java 8 APIs,
+and the plugin replaces the official Java 8 APIs with backport libraries only in the generated artifact.
+When you increase the minimum Android API level to 24 or higher in the future, 
+you will only need to remove the plugin and the backport dependencies.
+You do not have to change your code.
+
+Although Android by now supports
+[some Java 8 APIs through desugaring](https://developer.android.com/studio/write/java8-support-table),
+some important APIs are still not possible to use on Android APIs below 24 - for example `CompletableFuture`.
+
+## Backport Libraries
+
+The following sections list the backported APIs when adding the respective backport library as dependency.
+
+### [android-retrostreams](https://github.com/retrostreams/android-retrostreams)
+
+Dependency:
+```groovy
+dependencies {
+    implementation("net.sourceforge.streamsupport:android-retrostreams:1.7.4")
+}
+```
 
 Backported new types:
 - `java.lang.FuncionalInterface`
@@ -37,14 +58,30 @@ Backported static/default methods of:
 - `java.util.Map$Entry`
 - `java.util.concurrent.ConcurrentMap`
 
-## [android-retrofuture](https://github.com/retrostreams/android-retrostreams)
+### [android-retrofuture](https://github.com/retrostreams/android-retrofuture)
+
+Dependency:
+```groovy
+dependencies {
+    implementation("net.sourceforge.streamsupport:android-retrofuture:1.7.4")
+}
+```
 
 Backported new types:
 - `java.util.concurrent.CompletableFuture`
 - `java.util.concurrent.CompletionException`
 - `java.util.concurrent.CompletionStage`
 
-## [threetenbp](https://github.com/ThreeTen/threetenbp)
+### [threetenbp](https://github.com/ThreeTen/threetenbp) or [threetenabp](https://github.com/JakeWharton/ThreeTenABP)
+
+Dependency:
+```groovy
+dependencies {
+    implementation("org.threeten:threetenbp:1.5.1")
+    // or 
+    implementation("com.jakewharton.threetenabp:threetenabp:1.3.1")
+}
+```
 
 Backported new types:
 - `java.time.**`
@@ -63,7 +100,7 @@ Backported conversion methods of:
 - `java.sql.Timestamp`
 
 
-# How to use
+## How to Use
 
 Configure your `app/build.gradle` like the following:
 
@@ -78,7 +115,7 @@ buildscript {
     }
 }
 
-apply plugin: 'com.android.application' // mandatory for android apps
+apply plugin: 'com.android.application'
 apply plugin: 'com.github.sgtsilvio.gradle.android-retrofix'
 ...
 
@@ -101,7 +138,7 @@ dependencies {
     implementation 'net.sourceforge.streamsupport:android-retrostreams:1.7.4' // for backporting streams
     implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.4' // for backporting future
     implementation 'org.threeten:threetenbp:1.5.1' // for backporting time
-    // or implementation 'com.jakewharton.threetenabp:threetenabp:1.3.1' // https://github.com/JakeWharton/ThreeTenABP
+    // or implementation 'com.jakewharton.threetenabp:threetenabp:1.3.1'
     ...
 }
 ```
