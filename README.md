@@ -111,7 +111,7 @@ buildscript {
         gradlePluginPortal() // where this plugin is hosted
     }
     dependencies {
-        classpath 'gradle.plugin.com.github.sgtsilvio.gradle:android-retrofix:0.4.0'
+        classpath 'gradle.plugin.com.github.sgtsilvio.gradle:android-retrofix:0.4.1'
     }
 }
 
