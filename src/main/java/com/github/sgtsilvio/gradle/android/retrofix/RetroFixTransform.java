@@ -126,7 +126,7 @@ class RetroFixTransform extends Transform {
                 Files.walk(inputPath)
                         .filter(Files::isRegularFile)
                         .filter(Lambdas.predicate(path -> {
-                            if (path.getFileName().toFile().getName().endsWith(".class")) {
+                            if (isTransformableClass(path.getFileName().toFile().getName())) {
                                 return true;
                             }
                             final String filePath = inputPath.relativize(path).toString();
@@ -174,8 +174,7 @@ class RetroFixTransform extends Transform {
                 zipFile.stream()
                         .filter(entry -> !entry.isDirectory())
                         .filter(Lambdas.predicate(entry -> {
-                            if (entry.getName().endsWith(".class") && !entry.getName().startsWith("META-INF/")
-                                    && !entry.getName().startsWith("META-INF\\")) {
+                            if (isTransformableClass(entry.getName())) {
                                 return true;
                             }
                             logger.info("Copying file {}", entry.getName());
@@ -194,6 +193,11 @@ class RetroFixTransform extends Transform {
                 FileUtils.deleteDirectory(outputDir);
             }));
         });
+    }
+
+    private static boolean isTransformableClass(final @NotNull String fileName) {
+        return fileName.endsWith(".class") && !fileName.startsWith("META-INF/") && !fileName.startsWith("META-INF\\") &&
+                !fileName.equals("module-info.class") && !fileName.equals("package-info.class");
     }
 
     private static void transformClass(
