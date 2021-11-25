@@ -1,6 +1,6 @@
 # Android RetroFix
 
-[![Maven metadata URL](https://img.shields.io/maven-metadata/v?color=brightgreen&label=gradle%20plugin&metadataUrl=https%3A%2F%2Fplugins.gradle.org%2Fm2%2Fcom%2Fgithub%2Fsgtsilvio%2Fgradle%2Fandroid-retrofix%2Fcom.github.sgtsilvio.gradle.android-retrofix.gradle.plugin%2Fmaven-metadata.xml)](https://plugins.gradle.org/plugin/com.github.sgtsilvio.gradle.android-retrofix)
+[![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/com.github.sgtsilvio.gradle.android-retrofix?color=brightgreen&style=for-the-badge)](https://plugins.gradle.org/plugin/com.github.sgtsilvio.gradle.android-retrofix)
 
 Seamlessly backports Java 8 APIs to Android below API 24 (Android 7.0 Nougat)
 
