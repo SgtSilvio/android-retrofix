@@ -1,14 +1,34 @@
 plugins {
-    id("java-gradle-plugin")
+    `java-gradle-plugin`
     id("com.gradle.plugin-publish")
+    id("io.github.sgtsilvio.gradle.defaults")
+    id("com.github.sgtsilvio.gradle.metadata")
 }
 
 group = "com.github.sgtsilvio.gradle"
 description = "Backports Java 8 APIs (java.util.Optional, java.util.function, java.util.stream, " +
         "java.util.concurrent.CompletableFuture, java.time) to Android below API 24 (Android 7.0 Nougat)"
 
+metadata {
+    readableName.set("Android RetroFix")
+    license {
+        apache2()
+    }
+    developers {
+        register("SgtSilvio") {
+            fullName.set("Silvio Giebl")
+        }
+    }
+    github {
+        org.set("SgtSilvio")
+        issues()
+    }
+}
+
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
 }
 
 repositories {
