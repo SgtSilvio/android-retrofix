@@ -49,9 +49,9 @@ gradlePlugin {
     plugins {
         create("android-retrofix") {
             id = "$group.$name"
-            displayName = "Android RetroFix"
-            description = project.description
             implementationClass = "$group.android.retrofix.RetroFixPlugin"
+            displayName = metadata.readableName.get()
+            description = project.description
         }
     }
 }
