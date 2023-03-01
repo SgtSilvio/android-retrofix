@@ -7,7 +7,7 @@ import javassist.ClassMap
  */
 class TypeMap : ClassMap() {
 
-    private val prefixMap: HashMap<String, String> = HashMap()
+    private val prefixMap = HashMap<String, String>()
 
     override fun get(key: String): String? {
         for (entry in prefixMap) {
@@ -18,7 +18,5 @@ class TypeMap : ClassMap() {
         return super.get(key)
     }
 
-    fun putPrefix(oldPrefix: String, newPrefix: String): String? {
-        return prefixMap.put(oldPrefix, newPrefix)
-    }
+    fun putPrefix(oldPrefix: String, newPrefix: String) = prefixMap.put(oldPrefix, newPrefix)
 }

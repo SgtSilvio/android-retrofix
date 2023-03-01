@@ -9,9 +9,7 @@ class MethodMap : HashMap<String, MethodMap.Entry>() {
         put(methodSignature, Entry(type, replacement, get(methodSignature)))
     }
 
-    fun forType(type: String): ForType {
-        return ForType(type)
-    }
+    fun forType(type: String) = ForType(type)
 
     class Entry(
         val type: String,
@@ -21,17 +19,14 @@ class MethodMap : HashMap<String, MethodMap.Entry>() {
 
     inner class ForType(private val type: String) {
 
-        fun redirect(method: String, signature: String, replacement: String): ForType {
-            return redirect(method, signature, replacement, method, false)
-        }
+        fun redirect(method: String, signature: String, replacement: String) =
+            redirect(method, signature, replacement, method, false)
 
-        fun redirectStatic(method: String, signature: String, replacement: String): ForType {
-            return redirect(method, signature, replacement, method, true)
-        }
+        fun redirectStatic(method: String, signature: String, replacement: String) =
+            redirect(method, signature, replacement, method, true)
 
-        fun redirectStatic(method: String, signature: String, replacement: String, newMethod: String): ForType {
-            return redirect(method, signature, replacement, newMethod, true)
-        }
+        fun redirectStatic(method: String, signature: String, replacement: String, newMethod: String) =
+            redirect(method, signature, replacement, newMethod, true)
 
         private fun redirect(
             method: String,
@@ -40,15 +35,8 @@ class MethodMap : HashMap<String, MethodMap.Entry>() {
             newMethod: String,
             isStatic: Boolean,
         ): ForType {
-            var replacement = replacement
-            if (!signature.endsWith("V")) {
-                replacement = "\$_ = $replacement"
-            }
-            put(
-                "$method $signature",
-                type,
-                replacement + "." + newMethod + "(" + (if (isStatic) "" else "$0,") + "$$);",
-            )
+            val r = if (signature.endsWith("V")) replacement else "\$_ = $replacement"
+            put("$method $signature", type, r + "." + newMethod + "(" + (if (isStatic) "" else "$0,") + "$$);")
             return this
         }
     }

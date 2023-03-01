@@ -14,9 +14,7 @@ class TimeBackport : Backport {
         private val logger = LoggerFactory.getLogger(TimeBackport::class.java)
     }
 
-    override fun isPresent(classPool: ClassPool): Boolean {
-        return classPool.find("org/threeten/bp/Clock") != null
-    }
+    override fun isPresent(classPool: ClassPool) = classPool.find("org/threeten/bp/Clock") != null
 
     override fun apply(typeMap: TypeMap, methodMap: MethodMap) {
         logger.info("Backporting threetenbp")
@@ -110,28 +108,28 @@ class TimeBackport : Backport {
     private fun mapMethods(map: MethodMap) {
         // java.util
         map.forType("java.util.Date")
-                .redirect("toInstant", "()Ljava/time/Instant;", "org.threeten.bp.DateTimeUtils")
-                .redirectStatic("from", "(Ljava/time/Instant;)Ljava/util/Date;", "org.threeten.bp.DateTimeUtils", "toDate")
+            .redirect("toInstant", "()Ljava/time/Instant;", "org.threeten.bp.DateTimeUtils")
+            .redirectStatic("from", "(Ljava/time/Instant;)Ljava/util/Date;", "org.threeten.bp.DateTimeUtils", "toDate")
         map.forType("java.util.Calendar")
-                .redirect("toInstant", "()Ljava/time/Instant;", "org.threeten.bp.DateTimeUtils")
+            .redirect("toInstant", "()Ljava/time/Instant;", "org.threeten.bp.DateTimeUtils")
         map.forType("java.util.GregorianCalendar")
-                .redirect("toZonedDateTime", "()Ljava/time/ZonedDateTime;", "org.threeten.bp.DateTimeUtils")
-                .redirectStatic("from", "(Ljava/time/ZonedDateTime;)Ljava/util/GregorianCalendar;", "org.threeten.bp.DateTimeUtils", "toGregorianCalendar")
+            .redirect("toZonedDateTime", "()Ljava/time/ZonedDateTime;", "org.threeten.bp.DateTimeUtils")
+            .redirectStatic("from", "(Ljava/time/ZonedDateTime;)Ljava/util/GregorianCalendar;", "org.threeten.bp.DateTimeUtils", "toGregorianCalendar")
         map.forType("java.util.TimeZone")
-                .redirect("toZoneId", "()Ljava/time/ZoneId;", "org.threeten.bp.DateTimeUtils")
-                .redirectStatic("getTimeZone", "(Ljava/time/ZoneId;)Ljava/util/TimeZone;", "org.threeten.bp.DateTimeUtils", "toTimeZone")
+            .redirect("toZoneId", "()Ljava/time/ZoneId;", "org.threeten.bp.DateTimeUtils")
+            .redirectStatic("getTimeZone", "(Ljava/time/ZoneId;)Ljava/util/TimeZone;", "org.threeten.bp.DateTimeUtils", "toTimeZone")
 
         // java.sql
         map.forType("java.sql.Date")
-                .redirect("toLocalDate", "()Ljava/time/LocalDate;", "org.threeten.bp.DateTimeUtils")
-                .redirectStatic("valueOf", "(Ljava/time/LocalDate;)Ljava/sql/Date;", "org.threeten.bp.DateTimeUtils", "toSqlDate")
+            .redirect("toLocalDate", "()Ljava/time/LocalDate;", "org.threeten.bp.DateTimeUtils")
+            .redirectStatic("valueOf", "(Ljava/time/LocalDate;)Ljava/sql/Date;", "org.threeten.bp.DateTimeUtils", "toSqlDate")
         map.forType("java.sql.Time")
-                .redirect("toLocalTime", "()Ljava/time/LocalTime;", "org.threeten.bp.DateTimeUtils")
-                .redirectStatic("valueOf", "(Ljava/time/LocalTime;)Ljava/sql/Time;", "org.threeten.bp.DateTimeUtils", "toSqlTime")
+            .redirect("toLocalTime", "()Ljava/time/LocalTime;", "org.threeten.bp.DateTimeUtils")
+            .redirectStatic("valueOf", "(Ljava/time/LocalTime;)Ljava/sql/Time;", "org.threeten.bp.DateTimeUtils", "toSqlTime")
         map.forType("java.sql.Timestamp")
-                .redirect("toInstant", "()Ljava/time/Instant;", "org.threeten.bp.DateTimeUtils")
-                .redirectStatic("from", "(Ljava/time/Instant;)Ljava/sql/Timestamp;", "org.threeten.bp.DateTimeUtils", "toSqlTimestamp")
-                .redirect("toLocalDateTime", "()Ljava/time/LocalDateTime;", "org.threeten.bp.DateTimeUtils")
-                .redirectStatic("valueOf", "(Ljava/time/LocalDateTime;)Ljava/sql/Timestamp;", "org.threeten.bp.DateTimeUtils", "toSqlTimestamp")
+            .redirect("toInstant", "()Ljava/time/Instant;", "org.threeten.bp.DateTimeUtils")
+            .redirectStatic("from", "(Ljava/time/Instant;)Ljava/sql/Timestamp;", "org.threeten.bp.DateTimeUtils", "toSqlTimestamp")
+            .redirect("toLocalDateTime", "()Ljava/time/LocalDateTime;", "org.threeten.bp.DateTimeUtils")
+            .redirectStatic("valueOf", "(Ljava/time/LocalDateTime;)Ljava/sql/Timestamp;", "org.threeten.bp.DateTimeUtils", "toSqlTimestamp")
     }
 }

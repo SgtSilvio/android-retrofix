@@ -14,9 +14,7 @@ class FutureBackport : Backport {
         private val logger = LoggerFactory.getLogger(FutureBackport::class.java)
     }
 
-    override fun isPresent(classPool: ClassPool): Boolean {
-        return classPool.find("java9/util/concurrent/CompletableFuture") != null
-    }
+    override fun isPresent(classPool: ClassPool) = classPool.find("java9/util/concurrent/CompletableFuture") != null
 
     override fun apply(typeMap: TypeMap, methodMap: MethodMap) {
         logger.info("Backporting android-retrofuture")

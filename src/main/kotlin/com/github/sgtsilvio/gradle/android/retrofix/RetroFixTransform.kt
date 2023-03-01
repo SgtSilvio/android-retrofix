@@ -8,11 +8,11 @@ import com.github.sgtsilvio.gradle.android.retrofix.backport.StreamsBackport
 import com.github.sgtsilvio.gradle.android.retrofix.backport.TimeBackport
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap
 import com.github.sgtsilvio.gradle.android.retrofix.transform.TypeMap
-import com.github.sgtsilvio.gradle.android.retrofix.util.methodEditor
 import com.google.common.collect.ImmutableSet
 import javassist.ClassPool
 import javassist.Modifier
-import javassist.NotFoundException
+import javassist.expr.ExprEditor
+import javassist.expr.MethodCall
 import org.apache.commons.io.FileUtils
 import org.apache.tools.ant.Project
 import org.apache.tools.ant.taskdefs.Zip
@@ -34,24 +34,17 @@ class RetroFixTransform(private val androidExtension: BaseExtension) : Transform
         private val logger = LoggerFactory.getLogger(RetroFixTransform::class.java)
     }
 
-    override fun getName(): String {
-        return "androidRetroFix"
-    }
+    override fun getName() = "androidRetroFix"
 
-    override fun getInputTypes(): MutableSet<QualifiedContent.ContentType> {
-        return ImmutableSet.of(QualifiedContent.DefaultContentType.CLASSES)
-    }
+    override fun getInputTypes() = ImmutableSet.of(QualifiedContent.DefaultContentType.CLASSES)
 
-    override fun getScopes(): MutableSet<in QualifiedContent.Scope> {
-        return ImmutableSet.of(
-                QualifiedContent.Scope.PROJECT,
-                QualifiedContent.Scope.SUB_PROJECTS,
-                QualifiedContent.Scope.EXTERNAL_LIBRARIES)
-    }
+    override fun getScopes() = ImmutableSet.of(
+        QualifiedContent.Scope.PROJECT,
+        QualifiedContent.Scope.SUB_PROJECTS,
+        QualifiedContent.Scope.EXTERNAL_LIBRARIES
+    )
 
-    override fun isIncremental(): Boolean {
-        return true
-    }
+    override fun isIncremental() = true
 
     override fun transform(transformInvocation: TransformInvocation) {
         val backports = LinkedList<Backport>()
@@ -63,42 +56,40 @@ class RetroFixTransform(private val androidExtension: BaseExtension) : Transform
 
         val classPool = ClassPool()
         classPool.appendSystemPath()
-        try {
-            for (file in androidExtension.bootClasspath) {
-                classPool.insertClassPath(file.absolutePath)
-            }
-            for (input in transformInvocation.inputs) {
-                for (jarInput in input.jarInputs) {
-                    classPool.insertClassPath(jarInput.file.absolutePath)
-                    backports.removeIf { backport ->
-                        if (backport.isPresent(classPool)) {
-                            presentBackports.add(backport)
-                            backportJars.add(jarInput)
-                            return@removeIf true
-                        }
-                        false
-                    }
-                }
-                for (directoryInput in input.directoryInputs) {
-                    classPool.insertClassPath(directoryInput.file.absolutePath)
+        for (file in androidExtension.bootClasspath) {
+            classPool.insertClassPath(file.absolutePath)
+        }
+        for (input in transformInvocation.inputs) {
+            for (jarInput in input.jarInputs) {
+                classPool.insertClassPath(jarInput.file.absolutePath)
+                backports.removeIf { backport ->
+                    if (backport.isPresent(classPool)) {
+                        presentBackports.add(backport)
+                        backportJars.add(jarInput)
+                        true
+                    } else false
                 }
             }
-        } catch (e: NotFoundException) {
-            throw RuntimeException(e)
+            for (directoryInput in input.directoryInputs) {
+                classPool.insertClassPath(directoryInput.file.absolutePath)
+            }
         }
 
         val typeMap = TypeMap()
         val methodMap = MethodMap()
-        presentBackports.forEach { backport -> backport.apply(typeMap, methodMap) }
+        for (backport in presentBackports) {
+            backport.apply(typeMap, methodMap)
+        }
 
         if (!transformInvocation.isIncremental) {
             transformInvocation.outputProvider.deleteAll()
         }
 
-        transformInvocation.inputs.forEach ignored@{ transformInput ->
-            transformInput.directoryInputs.forEach { directoryInput ->
+        for (transformInput in transformInvocation.inputs) {
+            for (directoryInput in transformInput.directoryInputs) {
                 val outputDir = transformInvocation.outputProvider.getContentLocation(
-                        directoryInput.name, directoryInput.contentTypes, directoryInput.scopes, Format.DIRECTORY)
+                    directoryInput.name, directoryInput.contentTypes, directoryInput.scopes, Format.DIRECTORY
+                )
 
                 if (outputDir.exists()) {
                     FileUtils.deleteDirectory(outputDir)
@@ -110,37 +101,39 @@ class RetroFixTransform(private val androidExtension: BaseExtension) : Transform
 
                 val inputPath = Paths.get(directoryInput.file.absolutePath)
                 Files.walk(inputPath)
-                        .filter(Files::isRegularFile)
-                        .filter { path ->
-                            if (isTransformableClass(path.fileName.toFile().name)) {
-                                return@filter true
-                            }
-                            val filePath = inputPath.relativize(path).toString()
-                            logger.info("Copying file {}", filePath)
-                            val file = File(outputDir, filePath)
-                            //noinspection ResultOfMethodCallIgnored
-                            file.parentFile.mkdirs()
-                            Files.copy(path, file.toPath())
-                            false
+                    .filter(Files::isRegularFile)
+                    .filter { path ->
+                        if (isTransformableClass(path.fileName.toFile().name)) {
+                            return@filter true
                         }
-                        .map(inputPath::relativize)
-                        .map(Path::toString)
-                        .map { s -> s.replace("/", ".").replace("\\\\", ".") }
-                        .map { s -> s.substring(0, s.length - ".class".length) }
-                        .forEach { s -> transformClass(classPool, s, typeMap, methodMap, outputDir) }
+                        val filePath = inputPath.relativize(path).toString()
+                        logger.info("Copying file {}", filePath)
+                        val file = File(outputDir, filePath)
+                        //noinspection ResultOfMethodCallIgnored
+                        file.parentFile.mkdirs()
+                        Files.copy(path, file.toPath())
+                        false
+                    }
+                    .map(inputPath::relativize)
+                    .map(Path::toString)
+                    .map { s -> s.replace("/", ".").replace("\\\\", ".") }
+                    .map { s -> s.substring(0, s.length - ".class".length) }
+                    .forEach { s -> transformClass(classPool, s, typeMap, methodMap, outputDir) }
             }
-            transformInput.jarInputs.forEach { jarInput ->
+            for (jarInput in transformInput.jarInputs) {
                 val outputDir = transformInvocation.outputProvider.getContentLocation(
-                        jarInput.name, jarInput.contentTypes, jarInput.scopes, Format.DIRECTORY)
+                    jarInput.name, jarInput.contentTypes, jarInput.scopes, Format.DIRECTORY
+                )
                 val outputJar = transformInvocation.outputProvider.getContentLocation(
-                        jarInput.name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
+                    jarInput.name, jarInput.contentTypes, jarInput.scopes, Format.JAR
+                )
 
                 if ((jarInput.status == Status.NOTCHANGED) && outputJar.exists()) {
-                    return@forEach
+                    continue
                 }
                 if (backportJars.contains(jarInput)) {
                     FileUtils.copyFile(jarInput.file, outputJar)
-                    return@forEach
+                    continue
                 }
                 if (outputDir.exists()) {
                     FileUtils.deleteDirectory(outputDir)
@@ -149,7 +142,7 @@ class RetroFixTransform(private val androidExtension: BaseExtension) : Transform
                     FileUtils.delete(outputJar)
                 }
                 if (jarInput.status == Status.REMOVED) {
-                    return@forEach
+                    continue
                 }
                 if (!outputDir.mkdirs()) {
                     throw RuntimeException("Could not create output directory")
@@ -158,22 +151,22 @@ class RetroFixTransform(private val androidExtension: BaseExtension) : Transform
 
                 val zipFile = ZipFile(jarInput.file)
                 zipFile.stream()
-                        .filter { entry -> !entry.isDirectory }
-                        .filter { entry ->
-                            if (isTransformableClass(entry.name)) {
-                                return@filter true
-                            }
-                            logger.info("Copying file {}", entry.name)
-                            val file = File(outputDir, entry.name)
-                            //noinspection ResultOfMethodCallIgnored
-                            file.parentFile.mkdirs()
-                            Files.copy(zipFile.getInputStream(entry), file.toPath())
-                            false
+                    .filter { entry -> !entry.isDirectory }
+                    .filter { entry ->
+                        if (isTransformableClass(entry.name)) {
+                            return@filter true
                         }
-                        .map(ZipEntry::getName)
-                        .map { s -> s.replace("/", ".").replace("\\\\", ".") }
-                        .map { s -> s.substring(0, s.length - ".class".length) }
-                        .forEach { s -> transformClass(classPool, s, typeMap, methodMap, outputDir) }
+                        logger.info("Copying file {}", entry.name)
+                        val file = File(outputDir, entry.name)
+                        //noinspection ResultOfMethodCallIgnored
+                        file.parentFile.mkdirs()
+                        Files.copy(zipFile.getInputStream(entry), file.toPath())
+                        false
+                    }
+                    .map(ZipEntry::getName)
+                    .map { s -> s.replace("/", ".").replace("\\\\", ".") }
+                    .map { s -> s.substring(0, s.length - ".class".length) }
+                    .forEach { s -> transformClass(classPool, s, typeMap, methodMap, outputDir) }
 
                 zip(outputDir, outputJar)
                 FileUtils.deleteDirectory(outputDir)
@@ -181,14 +174,17 @@ class RetroFixTransform(private val androidExtension: BaseExtension) : Transform
         }
     }
 
-    private fun isTransformableClass(fileName: String): Boolean {
-        return fileName.endsWith(".class") && !fileName.startsWith("META-INF/") && !fileName.startsWith("META-INF\\") &&
-                fileName != "module-info.class" && fileName != "package-info.class"
-    }
+    private fun isTransformableClass(fileName: String) =
+        fileName.endsWith(".class") && !fileName.startsWith("META-INF/") && !fileName.startsWith("META-INF\\") &&
+                (fileName != "module-info.class") && (fileName != "package-info.class")
 
     private fun transformClass(
-            classPool: ClassPool, className: String, typeMap: TypeMap, methodMap: MethodMap, outputDir: File) {
-
+        classPool: ClassPool,
+        className: String,
+        typeMap: TypeMap,
+        methodMap: MethodMap,
+        outputDir: File,
+    ) {
         logger.info("Transforming class {}", className)
         val ctClass = classPool.get(className)
 
@@ -226,14 +222,27 @@ class RetroFixTransform(private val androidExtension: BaseExtension) : Transform
 
         ctClass.writeFile(outputDir.absolutePath)
     }
+}
 
-    private fun zip(inputDir: File, outputFile: File) {
-        val p = Project()
-        p.init()
-        val zip = Zip()
-        zip.project = p
-        zip.destFile = outputFile
-        zip.setBasedir(inputDir)
-        zip.perform()
+private fun zip(inputDir: File, outputFile: File) {
+    val p = Project()
+    p.init()
+    val zip = Zip()
+    zip.project = p
+    zip.destFile = outputFile
+    zip.setBasedir(inputDir)
+    zip.perform()
+}
+
+private fun methodEditor(consumer: (MethodCall, Int) -> Unit) = object : ExprEditor() {
+    private var c = 0
+
+    override fun edit(m: MethodCall) {
+        try {
+            consumer.invoke(m, c)
+            c++
+        } catch (throwable: Throwable) {
+            throw RuntimeException(throwable)
+        }
     }
 }
