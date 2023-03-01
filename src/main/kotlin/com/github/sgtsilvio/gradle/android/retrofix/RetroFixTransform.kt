@@ -41,7 +41,7 @@ class RetroFixTransform(private val androidExtension: BaseExtension) : Transform
     override fun getScopes() = ImmutableSet.of(
         QualifiedContent.Scope.PROJECT,
         QualifiedContent.Scope.SUB_PROJECTS,
-        QualifiedContent.Scope.EXTERNAL_LIBRARIES
+        QualifiedContent.Scope.EXTERNAL_LIBRARIES,
     )
 
     override fun isIncremental() = true
