@@ -1,5 +1,5 @@
 plugins {
-    `java-gradle-plugin`
+    `kotlin-dsl`
     id("com.gradle.plugin-publish")
     id("io.github.sgtsilvio.gradle.defaults")
     id("com.github.sgtsilvio.gradle.metadata")
