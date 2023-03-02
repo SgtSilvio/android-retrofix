@@ -13,7 +13,6 @@ import javassist.ClassPool
 import javassist.Modifier
 import javassist.expr.ExprEditor
 import javassist.expr.MethodCall
-import org.apache.commons.io.FileUtils
 import org.apache.tools.ant.Project
 import org.apache.tools.ant.taskdefs.Zip
 import org.slf4j.LoggerFactory
@@ -92,7 +91,7 @@ class RetroFixTransform(private val androidExtension: BaseExtension) : Transform
                 )
 
                 if (outputDir.exists()) {
-                    FileUtils.deleteDirectory(outputDir)
+                    check(outputDir.deleteRecursively())
                 }
                 if (!outputDir.mkdirs()) {
                     throw RuntimeException("Could not create output directory")
@@ -132,14 +131,14 @@ class RetroFixTransform(private val androidExtension: BaseExtension) : Transform
                     continue
                 }
                 if (backportJars.contains(jarInput)) {
-                    FileUtils.copyFile(jarInput.file, outputJar)
+                    Files.copy(jarInput.file.toPath(), outputJar.toPath())
                     continue
                 }
                 if (outputDir.exists()) {
-                    FileUtils.deleteDirectory(outputDir)
+                    check(outputDir.deleteRecursively())
                 }
                 if (outputJar.exists()) {
-                    FileUtils.delete(outputJar)
+                    Files.delete(outputJar.toPath())
                 }
                 if (jarInput.status == Status.REMOVED) {
                     continue
@@ -169,7 +168,7 @@ class RetroFixTransform(private val androidExtension: BaseExtension) : Transform
                     .forEach { s -> transformClass(classPool, s, typeMap, methodMap, outputDir) }
 
                 zip(outputDir, outputJar)
-                FileUtils.deleteDirectory(outputDir)
+                check(outputDir.deleteRecursively())
             }
         }
     }
