@@ -32,7 +32,7 @@ class RetroFixMethodVisitor(
         // TODO replace types in AnnotationVisitor.visitAnnotation descriptor
         println("visitAnnotation $descriptor $visible")
 
-        val fixedDescriptor = typeMap.fixClassDescriptor(descriptor)
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         return super.visitAnnotation(fixedDescriptor, visible)
     }
 
@@ -47,7 +47,7 @@ class RetroFixMethodVisitor(
         // TODO replace types in AnnotationVisitor.visitAnnotation descriptor
         println("visitTypeAnnotation $typeRef $typePath $descriptor $visible")
 
-        val fixedDescriptor = typeMap.fixClassDescriptor(descriptor)
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         return super.visitTypeAnnotation(typeRef, typePath, fixedDescriptor, visible)
     }
 
@@ -62,7 +62,7 @@ class RetroFixMethodVisitor(
         // TODO replace types in AnnotationVisitor.visitAnnotation descriptor
         println("visitParameterAnnotation $parameter $descriptor $visible")
 
-        val fixedDescriptor = typeMap.fixClassDescriptor(descriptor)
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         return super.visitParameterAnnotation(parameter, fixedDescriptor, visible)
     }
 
@@ -113,7 +113,7 @@ class RetroFixMethodVisitor(
         println("visitFieldInsn $opcode $owner $name $descriptor")
 
         val fixedOwner = typeMap.fixClassName(owner)
-        val fixedDescriptor = typeMap.fixClassDescriptor(descriptor)
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         super.visitFieldInsn(opcode, fixedOwner, name, fixedDescriptor)
     }
 
@@ -134,7 +134,7 @@ class RetroFixMethodVisitor(
         println("visitMethodInsn $opcode $owner $name $descriptor $isInterface")
 
         val fixedOwner = typeMap.fixClassName(owner)
-        val fixedDescriptor = typeMap.fixMethodDescriptor(descriptor)
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         super.visitMethodInsn(opcode, fixedOwner, name, fixedDescriptor, isInterface)
     }
 
@@ -149,7 +149,7 @@ class RetroFixMethodVisitor(
         // replace types in bootstrapMethodArguments if Type (L;) or Handle (owner without L;, descriptor L;)
         println("visitInvokeDynamicInsn $name $descriptor $bootstrapMethodHandle ${bootstrapMethodArguments.contentToString()}")
 
-        val fixedDescriptor = typeMap.fixMethodDescriptor(descriptor)
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         val fixedBootstrapMethodArguments = Array(bootstrapMethodArguments.size) { i ->
             when (val argument = bootstrapMethodArguments[i]) {
                 is Type -> typeMap.fixType(argument)
@@ -206,7 +206,7 @@ class RetroFixMethodVisitor(
         // TODO replace types in AnnotationVisitor.visitAnnotation descriptor
         println("visitInsnAnnotation $typeRef $typePath $descriptor $visible")
 
-        val fixedDescriptor = typeMap.fixClassDescriptor(descriptor)
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         return super.visitInsnAnnotation(typeRef, typePath, fixedDescriptor, visible)
     }
 
@@ -227,7 +227,7 @@ class RetroFixMethodVisitor(
         // TODO replace types in AnnotationVisitor.visitAnnotation descriptor
         println("visitTryCatchAnnotation $typeRef $typePath $descriptor $visible")
 
-        val fixedDescriptor = typeMap.fixClassDescriptor(descriptor)
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         return super.visitTryCatchAnnotation(typeRef, typePath, fixedDescriptor, visible)
     }
 
@@ -243,7 +243,7 @@ class RetroFixMethodVisitor(
         // TODO replace types signature (L<, L;)
         println("visitLocalVariable $name $descriptor $signature $start $end $index")
 
-        val fixedDescriptor = typeMap.fixClassDescriptor(descriptor) // TODO array
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         super.visitLocalVariable(name, fixedDescriptor, signature, start, end, index)
     }
 
@@ -261,7 +261,7 @@ class RetroFixMethodVisitor(
         // TODO replace types in AnnotationVisitor.visitAnnotation descriptor
         println("visitLocalVariableAnnotation $typeRef $typePath ${start.contentToString()} ${end.contentToString()} ${index.contentToString()} $descriptor $visible")
 
-        val fixedDescriptor = typeMap.fixClassDescriptor(descriptor)
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         return super.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, fixedDescriptor, visible)
     }
 

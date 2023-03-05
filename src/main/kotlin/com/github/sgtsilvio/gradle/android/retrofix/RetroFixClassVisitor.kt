@@ -58,7 +58,7 @@ class RetroFixClassVisitor(
         // TODO replace types in AnnotationVisitor.visitAnnotation descriptor
         println("visitAnnotation $descriptor $visible")
 
-        val fixedDescriptor = typeMap.fixClassDescriptor(descriptor)
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         return super.visitAnnotation(fixedDescriptor, visible)
     }
 
@@ -73,7 +73,7 @@ class RetroFixClassVisitor(
         // TODO replace types in AnnotationVisitor.visitAnnotation descriptor
         println("visitTypeAnnotation $typeRef $typePath $descriptor $visible")
 
-        val fixedDescriptor = typeMap.fixClassDescriptor(descriptor)
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         return super.visitTypeAnnotation(typeRef, typePath, fixedDescriptor, visible)
     }
 
@@ -104,7 +104,7 @@ class RetroFixClassVisitor(
         // TODO replace types in RecordComponentVisitor.visitTypeAnnotation descriptor
         println("visitRecordComponent $name $descriptor $signature")
 
-        val fixedDescriptor = typeMap.fixClassDescriptor(descriptor) // TODO array
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         return super.visitRecordComponent(name, fixedDescriptor, signature)
     }
 
@@ -121,7 +121,7 @@ class RetroFixClassVisitor(
         // TODO replace types in FieldVisitor.visitTypeAnnotation descriptor
         println("visitField $access $name $descriptor $signature $value")
 
-        val fixedDescriptor = typeMap.fixClassDescriptor(descriptor) // TODO array
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         return super.visitField(access, name, fixedDescriptor, signature, value)
     }
 
@@ -137,7 +137,7 @@ class RetroFixClassVisitor(
         // replace types in exceptions
         println("visitMethod $access $name $descriptor $signature ${exceptions.contentToString()}")
 
-        val fixedDescriptor = typeMap.fixMethodDescriptor(descriptor)
+        val fixedDescriptor = typeMap.fixDescriptor(descriptor)
         val fixedExceptions = exceptions?.let { Array(it.size) { i -> typeMap.fixClassName(it[i]) } }
         return RetroFixMethodVisitor(
             classContext,
@@ -155,39 +155,7 @@ class RetroFixClassVisitor(
 
 internal fun TypeMap.fixClassName(internalName: String) = this[internalName] ?: internalName
 
-internal fun TypeMap.fixClassType(type: Type): Type = Type.getObjectType(fixClassName(type.internalName))
-
-internal fun TypeMap.fixClassDescriptor(descriptor: String): String = fixClassType(Type.getType(descriptor)).descriptor
-
-internal fun TypeMap.fixArrayType(type: Type): Type {
-    val elementName = type.elementType.internalName
-    val fixedElementName = fixClassName(elementName)
-    return Type.getType(type.descriptor.replace(elementName, fixedElementName))
-}
-
-internal fun TypeMap.fixMethodType(type: Type): Type = Type.getMethodType(fixMethodDescriptor(type.descriptor))
-
-internal fun TypeMap.fixMethodDescriptor(descriptor: String): String {
-    val fixedReturnType = fixClassType(Type.getReturnType(descriptor)) // TODO array
-    val fixedArgumentTypes = Type.getArgumentTypes(descriptor).let { Array(it.size) { i -> fixClassType(it[i]) } } // TODO array
-    return Type.getMethodDescriptor(fixedReturnType, *fixedArgumentTypes)
-}
-
-internal fun TypeMap.fixType(type: Type) = when (type.sort) {
-    Type.OBJECT -> fixClassType(type) // TODO no array
-    Type.ARRAY -> fixArrayType(type)
-    Type.METHOD -> fixMethodType(type)
-    else -> type
-}
-
-internal fun TypeMap.fixDescriptor(descriptor: String) = fixType(Type.getType(descriptor)).descriptor
-
-internal fun TypeMap.fixHandle(handle: Handle) =
-    Handle(handle.tag, fixClassName(handle.owner), handle.name, fixDescriptor(handle.desc), handle.isInterface)
-
-
-
-internal fun TypeMap.fixDescriptor2(descriptor: String): String {
+internal fun TypeMap.fixDescriptor(descriptor: String): String {
     var searchIndex = 0
     var appendIndex = 0
     var stringBuilder: StringBuilder? = null
@@ -210,3 +178,8 @@ internal fun TypeMap.fixDescriptor2(descriptor: String): String {
     }
     return stringBuilder?.append(descriptor, appendIndex, descriptor.length)?.toString() ?: descriptor
 }
+
+internal fun TypeMap.fixType(type: Type) = Type.getType(fixDescriptor(type.descriptor))
+
+internal fun TypeMap.fixHandle(handle: Handle) =
+    Handle(handle.tag, fixClassName(handle.owner), handle.name, fixDescriptor(handle.desc), handle.isInterface)
