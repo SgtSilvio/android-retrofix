@@ -2,7 +2,6 @@ package com.github.sgtsilvio.gradle.android.retrofix.backport
 
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap
 import com.github.sgtsilvio.gradle.android.retrofix.transform.TypeMap
-import javassist.ClassPool
 import org.slf4j.LoggerFactory
 
 /**
@@ -14,7 +13,9 @@ class TimeBackport : Backport {
         private val logger = LoggerFactory.getLogger(TimeBackport::class.java)
     }
 
-    override fun isPresent(classPool: ClassPool) = classPool.find("org/threeten/bp/Clock") != null
+    override val indicatorClass get() = "org/threeten/bp/Clock"
+
+    override fun isInstrumentable(className: String) = !className.startsWith("org/threeten/bp/")
 
     override fun apply(typeMap: TypeMap, methodMap: MethodMap) {
         logger.info("Backporting threetenbp")

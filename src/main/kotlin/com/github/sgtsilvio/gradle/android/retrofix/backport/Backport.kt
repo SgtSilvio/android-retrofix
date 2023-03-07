@@ -9,7 +9,11 @@ import javassist.ClassPool
  */
 interface Backport {
 
-    fun isPresent(classPool: ClassPool): Boolean
+    val indicatorClass: String
+
+    fun isInstrumentable(className: String): Boolean
+
+    fun isPresent(classPool: ClassPool) = classPool.find(indicatorClass) != null
 
     fun apply(typeMap: TypeMap, methodMap: MethodMap)
 }
