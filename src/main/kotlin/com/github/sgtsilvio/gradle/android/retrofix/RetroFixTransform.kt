@@ -189,24 +189,24 @@ class RetroFixTransform(private val androidExtension: BaseExtension) : Transform
 
         val replaceMap = HashMap<Int, String>()
 
-        ctClass.instrument(methodEditor { m, c ->
-            val key = m.methodName + " " + m.signature
-            var methodMapEntry = methodMap[key]
-            while (methodMapEntry != null) {
-                val method = m.method
-                val declaringClass = method.declaringClass
-                val matches = if (Modifier.isStatic(method.modifiers)) {
-                    declaringClass.name.equals(methodMapEntry.type)
-                } else {
-                    declaringClass.subtypeOf(declaringClass.classPool.get(methodMapEntry.type))
-                }
-                if (matches) {
-                    replaceMap[c] = methodMapEntry.replacement
-                    break
-                }
-                methodMapEntry = methodMapEntry.next
-            }
-        })
+//        ctClass.instrument(methodEditor { m, c ->
+//            val key = m.methodName + " " + m.signature
+//            var methodMapEntry = methodMap[key]
+//            while (methodMapEntry != null) {
+//                val method = m.method
+//                val declaringClass = method.declaringClass
+//                val matches = if (Modifier.isStatic(method.modifiers)) {
+//                    declaringClass.name.equals(methodMapEntry.type)
+//                } else {
+//                    declaringClass.subtypeOf(declaringClass.classPool.get(methodMapEntry.type))
+//                }
+//                if (matches) {
+//                    replaceMap[c] = methodMapEntry.replacement
+//                    break
+//                }
+//                methodMapEntry = methodMapEntry.next
+//            }
+//        })
 
         ctClass.classFile.renameClass(typeMap)
 

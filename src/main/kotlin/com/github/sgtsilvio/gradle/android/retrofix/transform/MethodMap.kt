@@ -5,39 +5,60 @@ package com.github.sgtsilvio.gradle.android.retrofix.transform
  */
 class MethodMap : HashMap<String, MethodMap.Entry>() {
 
-    fun put(methodSignature: String, type: String, replacement: String) {
-        put(methodSignature, Entry(type, replacement, get(methodSignature)))
-    }
-
     fun forType(type: String) = ForType(type)
 
     class Entry(
-        val type: String,
-        val replacement: String,
+        val owner: String,
+        val isStatic: Boolean,
+        val name: String,
+        val descriptor: String,
+
+        val newOwner: String,
+        // no newIsStatic as always static
+        val newName: String,
+        // newDescriptor is computed
+
         val next: Entry?,
-    )
+    ) {
+        val newDescriptor get() = if (isStatic) descriptor else "(L" + owner + ";" + descriptor.substring(1)
+    }
 
-    inner class ForType(private val type: String) {
+    inner class ForType(private val owner: String) {
 
-        fun redirect(method: String, signature: String, replacement: String) =
-            redirect(method, signature, replacement, method, false)
+        fun redirect(name: String, descriptor: String, newOwner: String) =
+            redirect(false, name, descriptor, newOwner, name)
 
-        fun redirectStatic(method: String, signature: String, replacement: String) =
-            redirect(method, signature, replacement, method, true)
+        fun redirectStatic(name: String, descriptor: String, newOwner: String) =
+            redirect(true, name, descriptor, newOwner, name)
 
-        fun redirectStatic(method: String, signature: String, replacement: String, newMethod: String) =
-            redirect(method, signature, replacement, newMethod, true)
+        fun redirectStatic(method: String, descriptor: String, newOwner: String, newName: String) =
+            redirect(true, method, descriptor, newOwner, newName)
 
         private fun redirect(
-            method: String,
-            signature: String,
-            replacement: String,
-            newMethod: String,
             isStatic: Boolean,
+            name: String,
+            descriptor: String,
+            newOwner: String,
+            newName: String,
         ): ForType {
-            val r = if (signature.endsWith("V")) replacement else "\$_ = $replacement"
-            put("$method $signature", type, r + "." + newMethod + "(" + (if (isStatic) "" else "$0,") + "$$);")
+            val key = "$name$descriptor"
+            put(key, Entry(owner, isStatic, name, descriptor, newOwner, newName, get(key)))
             return this
         }
+
+        private fun javassistReplacement(isStatic: Boolean, descriptor: String, newOwner: String, newName: String) =
+            buildString {
+                if (!descriptor.endsWith("V")) {
+                    append("\$_ = ")
+                }
+                append(newOwner.replace('/', '.'))
+                append(".")
+                append(newName)
+                if (isStatic) {
+                    append("($$);")
+                } else {
+                    append("($0,$$);")
+                }
+            }
     }
 }
