@@ -24,6 +24,8 @@ class FutureBackport : Backport {
     private fun mapTypes(map: TypeMap) {
         // java.util.concurrent
         map["java/util/concurrent/CompletableFuture"] = "java9/util/concurrent/CompletableFuture"
+        map["java/util/concurrent/CompletableFuture\$AsynchronousCompletionTask"] =
+            "java9/util/concurrent/CompletableFuture\$AsynchronousCompletionTask"
         map["java/util/concurrent/CompletionException"] = "java9/util/concurrent/CompletionException"
         map["java/util/concurrent/CompletionStage"] = "java9/util/concurrent/CompletionStage"
     }
