@@ -98,8 +98,8 @@ class TimeBackport : Backport {
         // java.time.zone
         map["java/time/zone/ZoneOffsetTransition"] = "org/threeten/bp/zone/ZoneOffsetTransition"
         map["java/time/zone/ZoneOffsetTransitionRule"] = "org/threeten/bp/zone/ZoneOffsetTransitionRule"
-        map["java/time/zone/ZoneOffsetTransitionRule.TimeDefinition"] =
-            "org/threeten/bp/zone/ZoneOffsetTransitionRule.TimeDefinition"
+        map["java/time/zone/ZoneOffsetTransitionRule\$TimeDefinition"] =
+            "org/threeten/bp/zone/ZoneOffsetTransitionRule\$TimeDefinition"
         map["java/time/zone/ZoneRules"] = "org/threeten/bp/zone/ZoneRules"
         map["java/time/zone/ZoneRulesException"] = "org/threeten/bp/zone/ZoneRulesException"
         map["java/time/zone/ZoneRulesProvider"] = "org/threeten/bp/zone/ZoneRulesProvider"
