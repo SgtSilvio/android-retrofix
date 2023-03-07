@@ -39,8 +39,11 @@ class StreamsBackport : Backport {
         // java.util.concurrent
         map["java/util/concurrent/CountedCompleter"] = "java9/util/concurrent/CountedCompleter"
         map["java/util/concurrent/ForkJoinPool"] = "java9/util/concurrent/ForkJoinPool"
+        map["java/util/concurrent/ForkJoinPool\$ForkJoinWorkerThreadFactory"] =
+            "java9/util/concurrent/ForkJoinPool\$ForkJoinWorkerThreadFactory"
+        map["java/util/concurrent/ForkJoinPool\$ManagedBlocker"] = "java9/util/concurrent/ForkJoinPool\$ManagedBlocker"
         map["java/util/concurrent/ForkJoinTask"] = "java9/util/concurrent/ForkJoinTask"
-        map["java/util/concurrent/ForkJoinWorkerTask"] = "java9/util/concurrent/ForkJoinWorkerTask"
+        map["java/util/concurrent/ForkJoinWorkerThread"] = "java9/util/concurrent/ForkJoinWorkerThread"
         map["java/util/concurrent/RecursiveAction"] = "java9/util/concurrent/RecursiveAction"
         map["java/util/concurrent/RecursiveTask"] = "java9/util/concurrent/RecursiveTask"
         map["java/util/concurrent/ThreadLocalRandom"] = "java9/util/concurrent/ThreadLocalRandom"
