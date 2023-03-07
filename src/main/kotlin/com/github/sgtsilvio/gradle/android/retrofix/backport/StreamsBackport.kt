@@ -30,10 +30,25 @@ class StreamsBackport : Backport {
         map["java/util/DoubleSummaryStatistics"] = "java9/util/DoubleSummaryStatistics"
         map["java/util/IntSummaryStatistics"] = "java9/util/IntSummaryStatistics"
         map["java/util/LongSummaryStatistics"] = "java9/util/LongSummaryStatistics"
-        map.putPrefix("java/util/Optional", "java9/util/Optional")
-        map.putPrefix("java/util/PrimitiveIterator", "java9/util/PrimitiveIterator")
+        map["java/util/Optional"] = "java9/util/Optional"
+        map["java/util/OptionalDouble"] = "java9/util/OptionalDouble"
+        map["java/util/OptionalInt"] = "java9/util/OptionalInt"
+        map["java/util/OptionalLong"] = "java9/util/OptionalLong"
+        map["java/util/PrimitiveIterator"] = "java9/util/PrimitiveIterator"
+        map["java/util/PrimitiveIterator\$OfDouble"] = "java9/util/PrimitiveIterator\$OfDouble"
+        map["java/util/PrimitiveIterator\$OfInt"] = "java9/util/PrimitiveIterator\$OfInt"
+        map["java/util/PrimitiveIterator\$OfLong"] = "java9/util/PrimitiveIterator\$OfLong"
+        map["java/util/Spliterator"] = "java9/util/Spliterator"
+        map["java/util/Spliterator\$OfDouble"] = "java9/util/Spliterator\$OfDouble"
+        map["java/util/Spliterator\$OfInt"] = "java9/util/Spliterator\$OfInt"
+        map["java/util/Spliterator\$OfLong"] = "java9/util/Spliterator\$OfLong"
+        map["java/util/Spliterator\$OfPrimitive"] = "java9/util/Spliterator\$OfPrimitive"
+        map["java/util/Spliterators"] = "java9/util/Spliterators"
+        map["java/util/Spliterators\$AbstractDoubleSpliterator"] = "java9/util/Spliterators\$AbstractDoubleSpliterator"
+        map["java/util/Spliterators\$AbstractIntSpliterator"] = "java9/util/Spliterators\$AbstractIntSpliterator"
+        map["java/util/Spliterators\$AbstractLongSpliterator"] = "java9/util/Spliterators\$AbstractLongSpliterator"
+        map["java/util/Spliterators\$AbstractSpliterator"] = "java9/util/Spliterators\$AbstractSpliterator"
         map["java/util/SplittableRandom"] = "java9/util/SplittableRandom"
-        map.putPrefix("java/util/Spliterator", "java9/util/Spliterator")
         map["java/util/StringJoiner"] = "java9/util/StringJoiner"
 
         // java.util.concurrent
@@ -49,10 +64,10 @@ class StreamsBackport : Backport {
         map["java/util/concurrent/ThreadLocalRandom"] = "java9/util/concurrent/ThreadLocalRandom"
 
         // java.util.function
-        map.putPrefix("java/util/function", "java9/util/function")
+        map.putPrefix("java/util/function/", "java9/util/function/")
 
         // java.util.stream
-        map.putPrefix("java/util/stream", "java9/util/stream")
+        map.putPrefix("java/util/stream/", "java9/util/stream/")
 
         // missing: java.util.Base64
         // missing: java.util.concurrent.locks.StampedLock
