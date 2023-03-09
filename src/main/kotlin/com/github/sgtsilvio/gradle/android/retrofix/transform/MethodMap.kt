@@ -18,7 +18,8 @@ class MethodMap {
         newName: String,
     ) {
         val key = "$name$descriptor"
-        map[key] = Entry(owner, isStatic, name, descriptor, newOwner, newName, map[key])
+        val newDescriptor = if (isStatic) descriptor else "(L" + owner + ";" + descriptor.substring(1)
+        map[key] = Entry(owner, isStatic, newOwner, newName, newDescriptor, map[key])
     }
 
     fun forOwner(oldOwner: String, newOwner: String) = ForOwner(oldOwner, newOwner)
@@ -26,18 +27,11 @@ class MethodMap {
     class Entry(
         val owner: String,
         val isStatic: Boolean,
-        val name: String,
-        val descriptor: String,
-
         val newOwner: String,
-        // no newIsStatic as always static
         val newName: String,
-        // newDescriptor is computed
-
+        val newDescriptor: String,
         val next: Entry?,
-    ) {
-        val newDescriptor get() = if (isStatic) descriptor else "(L" + owner + ";" + descriptor.substring(1)
-    }
+    )
 
     inner class ForOwner(private val oldOwner: String, private val newOwner: String) {
 
