@@ -1,5 +1,6 @@
 package com.github.sgtsilvio.gradle.android.retrofix
 
+import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.instrumentation.InstrumentationScope
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.gradle.BaseExtension
@@ -10,15 +11,12 @@ import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.withType
-import org.gradle.util.GradleVersion
 import java.util.zip.ZipFile
 
 /**
  * @author Silvio Giebl
  */
 class RetroFixPlugin : Plugin<Project> {
-
-    private var androidExtension: BaseExtension? = null
 
     @Override
     override fun apply(project: Project) {
@@ -29,8 +27,8 @@ class RetroFixPlugin : Plugin<Project> {
                 extendsFrom(configuration)
             }
 
-            if (GradleVersion.current() >= GradleVersion.version("7.2")) {
-                val androidComponents = project.extensions.getByType<ApplicationAndroidComponentsExtension>()
+            val androidComponents = project.extensions.getByType<ApplicationAndroidComponentsExtension>()
+            if (androidComponents.pluginVersion >= AndroidPluginVersion(7, 2)) {
                 androidComponents.onVariants { applicationVariant ->
                     applicationVariant.instrumentation.transformClassesWith(
                         RetroFixClassVisitorFactory::class.java,
@@ -39,8 +37,7 @@ class RetroFixPlugin : Plugin<Project> {
                         parameters.classList.set(classListProvider(project, configuration))
                     }
                 }
-            } else if (GradleVersion.current() >= GradleVersion.version("7.0")) {
-                val androidComponents = project.extensions.getByType<ApplicationAndroidComponentsExtension>()
+            } else {
                 androidComponents.onVariants { applicationVariant ->
                     applicationVariant.transformClassesWith(
                         RetroFixClassVisitorFactory::class.java,
@@ -49,20 +46,16 @@ class RetroFixPlugin : Plugin<Project> {
                         parameters.classList.set(classListProvider(project, configuration))
                     }
                 }
-            } else {
-                val android = project.extensions.getByName("android") as BaseExtension
-                android.registerTransform(RetroFixTransform(android))
-                androidExtension = android
             }
         }
 
-//        project.afterEvaluate {
-//            val androidExtension = androidExtension
-//                ?: throw GradleException("The RetroFix plugin requires the 'com.android.application' plugin.")
-//            if (androidExtension.defaultConfig.minSdkVersion!!.apiLevel >= 24) {
-//                throw GradleException("The RetroFix plugin should not be used when the minSdkVersion >= 24.")
-//            }
-//        }
+        project.afterEvaluate {
+            val androidExtension = project.extensions.getByName("android") as? BaseExtension
+                ?: throw GradleException("The RetroFix plugin requires the 'com.android.application' plugin.")
+            if (androidExtension.defaultConfig.minSdkVersion!!.apiLevel >= 24) {
+                throw GradleException("The RetroFix plugin should not be used when minSdk >= 24.")
+            }
+        }
     }
 }
 
