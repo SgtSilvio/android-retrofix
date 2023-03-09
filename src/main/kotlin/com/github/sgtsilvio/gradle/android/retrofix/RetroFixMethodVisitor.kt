@@ -57,8 +57,7 @@ class RetroFixMethodVisitor(
     }
 
     private fun mapMethod(owner: String, isStatic: Boolean, name: String, descriptor: String): MethodMap.Entry? {
-        val key = "$name$descriptor"
-        var entry = methodMap[key]
+        var entry = methodMap.get(name, descriptor)
         while (entry != null) {
             if (isStatic == entry.isStatic) {
                 if (owner == entry.owner) {

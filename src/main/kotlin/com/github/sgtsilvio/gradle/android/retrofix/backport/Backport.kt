@@ -1,7 +1,7 @@
 package com.github.sgtsilvio.gradle.android.retrofix.backport
 
+import com.github.sgtsilvio.gradle.android.retrofix.transform.ClassMap
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap
-import com.github.sgtsilvio.gradle.android.retrofix.transform.TypeMap
 
 /**
  * @author Silvio Giebl
@@ -12,5 +12,5 @@ interface Backport {
 
     fun isInstrumentable(className: String): Boolean
 
-    fun apply(typeMap: TypeMap, methodMap: MethodMap)
+    fun apply(classMap: ClassMap, methodMap: MethodMap)
 }

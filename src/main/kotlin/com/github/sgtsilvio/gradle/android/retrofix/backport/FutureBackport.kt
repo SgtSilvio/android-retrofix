@@ -1,7 +1,7 @@
 package com.github.sgtsilvio.gradle.android.retrofix.backport
 
+import com.github.sgtsilvio.gradle.android.retrofix.transform.ClassMap
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap
-import com.github.sgtsilvio.gradle.android.retrofix.transform.TypeMap
 import org.slf4j.LoggerFactory
 
 /**
@@ -17,12 +17,12 @@ class FutureBackport : Backport {
 
     override fun isInstrumentable(className: String) = !className.startsWith("java9/")
 
-    override fun apply(typeMap: TypeMap, methodMap: MethodMap) {
+    override fun apply(classMap: ClassMap, methodMap: MethodMap) {
         logger.info("Backporting android-retrofuture")
-        mapTypes(typeMap)
+        mapTypes(classMap)
     }
 
-    private fun mapTypes(map: TypeMap) {
+    private fun mapTypes(map: ClassMap) {
         // java.util.concurrent
         map["java/util/concurrent/CompletableFuture"] = "java9/util/concurrent/CompletableFuture"
         map["java/util/concurrent/CompletableFuture\$AsynchronousCompletionTask"] =

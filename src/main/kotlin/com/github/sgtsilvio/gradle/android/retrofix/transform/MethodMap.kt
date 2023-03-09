@@ -3,7 +3,23 @@ package com.github.sgtsilvio.gradle.android.retrofix.transform
 /**
  * @author Silvio Giebl
  */
-class MethodMap : HashMap<String, MethodMap.Entry>() {
+class MethodMap {
+
+    private val map = HashMap<String, Entry>()
+
+    fun get(name: String, descriptor: String) = map["$name$descriptor"]
+
+    private fun redirect(
+        owner: String,
+        isStatic: Boolean,
+        name: String,
+        descriptor: String,
+        newOwner: String,
+        newName: String,
+    ) {
+        val key = "$name$descriptor"
+        map[key] = Entry(owner, isStatic, name, descriptor, newOwner, newName, map[key])
+    }
 
     fun forType(type: String) = ForType(type)
 
@@ -25,24 +41,18 @@ class MethodMap : HashMap<String, MethodMap.Entry>() {
 
     inner class ForType(private val owner: String) {
 
-        fun redirect(name: String, descriptor: String, newOwner: String) =
-            redirect(false, name, descriptor, newOwner, name)
+        fun redirect(name: String, descriptor: String, newOwner: String): ForType {
+            redirect(owner, false, name, descriptor, newOwner, name)
+            return this
+        }
 
-        fun redirectStatic(name: String, descriptor: String, newOwner: String) =
-            redirect(true, name, descriptor, newOwner, name)
+        fun redirectStatic(name: String, descriptor: String, newOwner: String): ForType {
+            redirect(owner, true, name, descriptor, newOwner, name)
+            return this
+        }
 
-        fun redirectStatic(method: String, descriptor: String, newOwner: String, newName: String) =
-            redirect(true, method, descriptor, newOwner, newName)
-
-        private fun redirect(
-            isStatic: Boolean,
-            name: String,
-            descriptor: String,
-            newOwner: String,
-            newName: String,
-        ): ForType {
-            val key = "$name$descriptor"
-            put(key, Entry(owner, isStatic, name, descriptor, newOwner, newName, get(key)))
+        fun redirectStatic(method: String, descriptor: String, newOwner: String, newName: String): ForType {
+            redirect(owner, true, method, descriptor, newOwner, newName)
             return this
         }
     }

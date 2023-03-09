@@ -1,7 +1,7 @@
 package com.github.sgtsilvio.gradle.android.retrofix.backport
 
+import com.github.sgtsilvio.gradle.android.retrofix.transform.ClassMap
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap
-import com.github.sgtsilvio.gradle.android.retrofix.transform.TypeMap
 import org.slf4j.LoggerFactory
 
 /**
@@ -17,13 +17,13 @@ class StreamsBackport : Backport {
 
     override fun isInstrumentable(className: String) = !className.startsWith("java9/")
 
-    override fun apply(typeMap: TypeMap, methodMap: MethodMap) {
+    override fun apply(classMap: ClassMap, methodMap: MethodMap) {
         logger.info("Backporting android-retrostreams")
-        mapTypes(typeMap)
+        mapTypes(classMap)
         mapMethods(methodMap)
     }
 
-    private fun mapTypes(map: TypeMap) {
+    private fun mapTypes(map: ClassMap) {
         // java.lang
         map["java/lang/FunctionalInterface"] = "java9/lang/FunctionalInterface"
 
