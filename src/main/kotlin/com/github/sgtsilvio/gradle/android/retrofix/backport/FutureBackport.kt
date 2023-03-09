@@ -7,11 +7,9 @@ import org.slf4j.LoggerFactory
 /**
  * @author Silvio Giebl
  */
-class FutureBackport : Backport {
+object FutureBackport : Backport {
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(FutureBackport::class.java)
-    }
+    private val logger = LoggerFactory.getLogger(FutureBackport::class.java)
 
     override val indicatorClass get() = "java9/util/concurrent/CompletableFuture"
 

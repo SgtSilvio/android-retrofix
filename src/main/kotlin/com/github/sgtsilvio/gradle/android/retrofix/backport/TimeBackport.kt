@@ -7,11 +7,9 @@ import org.slf4j.LoggerFactory
 /**
  * @author Silvio Giebl
  */
-class TimeBackport : Backport {
+object TimeBackport : Backport {
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(TimeBackport::class.java)
-    }
+    private val logger = LoggerFactory.getLogger(TimeBackport::class.java)
 
     override val indicatorClass get() = "org/threeten/bp/Clock"
 

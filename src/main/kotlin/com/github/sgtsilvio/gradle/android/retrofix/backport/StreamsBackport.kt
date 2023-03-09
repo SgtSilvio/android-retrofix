@@ -7,11 +7,9 @@ import org.slf4j.LoggerFactory
 /**
  * @author Silvio Giebl
  */
-class StreamsBackport : Backport {
+object StreamsBackport : Backport {
 
-    companion object {
-        private val logger = LoggerFactory.getLogger(StreamsBackport::class.java)
-    }
+    private val logger = LoggerFactory.getLogger(StreamsBackport::class.java)
 
     override val indicatorClass get() = "java9/lang/FunctionalInterface"
 

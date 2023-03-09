@@ -28,7 +28,7 @@ abstract class RetroFixClassVisitorFactory : AsmClassVisitorFactory<RetroFixClas
         val classList = parameters.get().classList.get()
         val classMap = ClassMap()
         val methodMap = MethodMap()
-        for (backport in listOf(FutureBackport(), StreamsBackport(), TimeBackport())) {
+        for (backport in listOf(FutureBackport, StreamsBackport, TimeBackport)) {
             if (classList.contains(backport.indicatorClass) &&
                 backport.isInstrumentable(classContext.currentClassData.className.replace('.', '/'))
             ) {
