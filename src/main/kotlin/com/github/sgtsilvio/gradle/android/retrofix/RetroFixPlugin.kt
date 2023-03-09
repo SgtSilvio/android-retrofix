@@ -16,6 +16,7 @@ import java.util.zip.ZipFile
 /**
  * @author Silvio Giebl
  */
+@Suppress("unused")
 class RetroFixPlugin : Plugin<Project> {
 
     @Override
