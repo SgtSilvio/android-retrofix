@@ -5,6 +5,9 @@ import com.android.build.api.instrumentation.InstrumentationScope
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.BasePlugin
+import com.github.sgtsilvio.gradle.android.retrofix.backport.FutureBackport
+import com.github.sgtsilvio.gradle.android.retrofix.backport.StreamsBackport
+import com.github.sgtsilvio.gradle.android.retrofix.backport.TimeBackport
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -35,17 +38,16 @@ class RetroFixPlugin : Plugin<Project> {
                         RetroFixClassVisitorFactory::class.java,
                         InstrumentationScope.ALL,
                     ) { parameters ->
-                        parameters.classList.set(classListProvider(project, configuration))
+                        parameters.backportList.set(backportListProvider(project, configuration))
                     }
                 }
             } else {
                 androidComponents.onVariants { applicationVariant ->
-                    @Suppress("DEPRECATION")
-                    applicationVariant.transformClassesWith(
+                    @Suppress("DEPRECATION") applicationVariant.transformClassesWith(
                         RetroFixClassVisitorFactory::class.java,
                         InstrumentationScope.ALL,
                     ) { parameters ->
-                        parameters.classList.set(classListProvider(project, configuration))
+                        parameters.backportList.set(backportListProvider(project, configuration))
                     }
                 }
             }
@@ -61,8 +63,8 @@ class RetroFixPlugin : Plugin<Project> {
     }
 }
 
-private fun classListProvider(project: Project, libraries: FileCollection) = project.provider {
-    val classList = mutableListOf<String>()
+private fun backportListProvider(project: Project, libraries: FileCollection) = project.provider {
+    val classList = hashSetOf<String>()
     for (library in libraries) {
         if (!library.isFile || !library.name.endsWith(".jar")) {
             throw GradleException("libraries are expected to be only jar files, but found $library")
@@ -78,5 +80,11 @@ private fun classListProvider(project: Project, libraries: FileCollection) = pro
             }
         }
     }
-    classList
+    val backportList = listOf(
+        FutureBackport(),
+        StreamsBackport(),
+        TimeBackport(),
+    ).filter { classList.contains(it.indicatorClass) }
+    project.logger.info("android-retrofix: back porting $backportList")
+    backportList
 }

@@ -2,21 +2,17 @@ package com.github.sgtsilvio.gradle.android.retrofix.backport
 
 import com.github.sgtsilvio.gradle.android.retrofix.transform.ClassMap
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap
-import org.slf4j.LoggerFactory
 
 /**
  * @author Silvio Giebl
  */
-object FutureBackport : Backport {
-
-    private val logger = LoggerFactory.getLogger(FutureBackport::class.java)
+class FutureBackport : Backport {
 
     override val indicatorClass get() = "java9/util/concurrent/CompletableFuture"
 
     override fun isInstrumentable(className: String) = !className.startsWith("java9/")
 
     override fun apply(classMap: ClassMap, methodMap: MethodMap) {
-        logger.info("Backporting android-retrofuture")
         mapTypes(classMap)
     }
 

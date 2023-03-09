@@ -2,21 +2,17 @@ package com.github.sgtsilvio.gradle.android.retrofix.backport
 
 import com.github.sgtsilvio.gradle.android.retrofix.transform.ClassMap
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap
-import org.slf4j.LoggerFactory
 
 /**
  * @author Silvio Giebl
  */
-object TimeBackport : Backport {
-
-    private val logger = LoggerFactory.getLogger(TimeBackport::class.java)
+class TimeBackport : Backport {
 
     override val indicatorClass get() = "org/threeten/bp/Clock"
 
     override fun isInstrumentable(className: String) = !className.startsWith("org/threeten/bp/")
 
     override fun apply(classMap: ClassMap, methodMap: MethodMap) {
-        logger.info("Backporting threetenbp")
         mapTypes(classMap)
         mapMethods(methodMap)
     }
