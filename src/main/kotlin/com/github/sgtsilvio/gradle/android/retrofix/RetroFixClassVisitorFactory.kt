@@ -9,6 +9,8 @@ import com.github.sgtsilvio.gradle.android.retrofix.backport.StreamsBackport
 import com.github.sgtsilvio.gradle.android.retrofix.backport.TimeBackport
 import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap
 import com.github.sgtsilvio.gradle.android.retrofix.transform.TypeMap
+import org.gradle.api.provider.SetProperty
+import org.gradle.api.tasks.Input
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.commons.ClassRemapper
 
@@ -18,14 +20,18 @@ import org.objectweb.asm.commons.ClassRemapper
 abstract class RetroFixClassVisitorFactory : AsmClassVisitorFactory<RetroFixClassVisitorFactory.Parameters> {
 
     interface Parameters : InstrumentationParameters {
-        // TODO parameters for enabled backports
+        @get:Input
+        val classList: SetProperty<String>
     }
 
     override fun createClassVisitor(classContext: ClassContext, nextClassVisitor: ClassVisitor): ClassVisitor {
+        val classList = parameters.get().classList.get()
         val typeMap = TypeMap()
         val methodMap = MethodMap()
         for (backport in listOf(FutureBackport(), StreamsBackport(), TimeBackport())) {
-            if (backport.isInstrumentable(classContext.currentClassData.className.replace('.', '/'))) {
+            if (classList.contains(backport.indicatorClass) &&
+                backport.isInstrumentable(classContext.currentClassData.className.replace('.', '/'))
+            ) {
                 backport.apply(typeMap, methodMap)
             }
         }
