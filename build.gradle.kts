@@ -40,7 +40,6 @@ dependencies {
     compileOnly("com.android.tools.build:gradle:${property("android.tools.build.version")}")
     compileOnly("com.android.tools.build:gradle-api:${property("android.tools.build.version")}")
     implementation("com.google.guava:guava:${property("guava.version")}")
-    implementation("org.javassist:javassist:${property("javassist.version")}")
     implementation("org.jetbrains:annotations:${property("annotations.version")}")
     implementation("org.ow2.asm:asm-commons:9.4")
 }

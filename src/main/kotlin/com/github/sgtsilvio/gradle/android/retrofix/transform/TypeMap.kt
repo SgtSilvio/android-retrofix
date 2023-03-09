@@ -1,18 +1,16 @@
 package com.github.sgtsilvio.gradle.android.retrofix.transform
 
-import javassist.ClassMap
-
 /**
  * @author Silvio Giebl
  */
-class TypeMap : ClassMap() {
+class TypeMap : HashMap<String, String>() {
 
     private val prefixMap = HashMap<String, String>()
 
     override fun get(key: String): String? {
-        for (entry in prefixMap) {
-            if (key.startsWith(entry.key)) {
-                return entry.value + key.substring(entry.key.length)
+        for ((oldPrefix, newPrefix) in prefixMap) {
+            if (key.startsWith(oldPrefix)) {
+                return newPrefix + key.substring(oldPrefix.length)
             }
         }
         return super.get(key)

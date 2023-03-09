@@ -45,20 +45,5 @@ class MethodMap : HashMap<String, MethodMap.Entry>() {
             put(key, Entry(owner, isStatic, name, descriptor, newOwner, newName, get(key)))
             return this
         }
-
-        private fun javassistReplacement(isStatic: Boolean, descriptor: String, newOwner: String, newName: String) =
-            buildString {
-                if (!descriptor.endsWith("V")) {
-                    append("\$_ = ")
-                }
-                append(newOwner.replace('/', '.'))
-                append(".")
-                append(newName)
-                if (isStatic) {
-                    append("($$);")
-                } else {
-                    append("($0,$$);")
-                }
-            }
     }
 }
