@@ -111,7 +111,7 @@ object TimeBackport : Backport {
             .redirectStatic("from", "(Ljava/time/Instant;)Ljava/util/Date;", "toDate")
         map.forOwner("java/util/Calendar", "org/threeten/bp/DateTimeUtils")
             .redirect("toInstant", "()Ljava/time/Instant;")
-            .redirect("toZonedDateTime", "()Ljava/time/ZonedDateTime;") // TODO
+            .redirect("toZonedDateTime", "()Ljava/time/ZonedDateTime;") // GregorianCalendar.toZonedDateTime
         map.forOwner("java/util/GregorianCalendar", "org/threeten/bp/DateTimeUtils")
             .redirectStatic("from", "(Ljava/time/ZonedDateTime;)Ljava/util/GregorianCalendar;", "toGregorianCalendar")
         map.forOwner("java/util/TimeZone", "org/threeten/bp/DateTimeUtils")

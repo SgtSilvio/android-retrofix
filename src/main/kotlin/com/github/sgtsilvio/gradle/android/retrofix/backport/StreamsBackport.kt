@@ -77,7 +77,7 @@ object StreamsBackport : Backport {
         map.forOwner("java/lang/Iterable", "java9/lang/Iterables")
             .redirect("forEach", "(Ljava/util/function/Consumer;)V")
             .redirect("spliterator", "()Ljava/util/Spliterator;")
-            .redirect("removeIf", "(Ljava/util/function/Predicate;)Z") // TODO
+            .redirect("removeIf", "(Ljava/util/function/Predicate;)Z") // Collection.removeIf
 
         map.forOwner("java/util/Iterator", "java9/util/Iterators")
             .redirect("forEachRemaining", "(Ljava/util/function/Consumer;)V")
