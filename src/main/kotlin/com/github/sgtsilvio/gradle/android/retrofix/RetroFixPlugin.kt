@@ -39,6 +39,7 @@ class RetroFixPlugin : Plugin<Project> {
                 }
             } else {
                 androidComponents.onVariants { applicationVariant ->
+                    @Suppress("DEPRECATION")
                     applicationVariant.transformClassesWith(
                         RetroFixClassVisitorFactory::class.java,
                         InstrumentationScope.ALL,
