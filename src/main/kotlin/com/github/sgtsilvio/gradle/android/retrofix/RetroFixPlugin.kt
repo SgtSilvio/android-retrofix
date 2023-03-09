@@ -2,14 +2,14 @@ package com.github.sgtsilvio.gradle.android.retrofix
 
 import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.instrumentation.InstrumentationScope
-import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.BasePlugin
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.withType
 import java.util.zip.ZipFile
 
@@ -27,7 +27,7 @@ class RetroFixPlugin : Plugin<Project> {
                 extendsFrom(configuration)
             }
 
-            val androidComponents = project.extensions.getByType<ApplicationAndroidComponentsExtension>()
+            val androidComponents = project.extensions["androidComponents"] as AndroidComponentsExtension<*, *, *>
             if (androidComponents.pluginVersion >= AndroidPluginVersion(7, 2)) {
                 androidComponents.onVariants { applicationVariant ->
                     applicationVariant.instrumentation.transformClassesWith(
@@ -50,7 +50,7 @@ class RetroFixPlugin : Plugin<Project> {
         }
 
         project.afterEvaluate {
-            val androidExtension = project.extensions.getByName("android") as? BaseExtension
+            val androidExtension = project.extensions["android"] as? BaseExtension
                 ?: throw GradleException("The RetroFix plugin requires the 'com.android.application' plugin.")
             if (androidExtension.defaultConfig.minSdkVersion!!.apiLevel >= 24) {
                 throw GradleException("The RetroFix plugin should not be used when minSdk >= 24.")
