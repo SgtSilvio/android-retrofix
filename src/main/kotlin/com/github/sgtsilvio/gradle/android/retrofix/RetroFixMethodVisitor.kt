@@ -21,7 +21,7 @@ class RetroFixMethodVisitor(
         owner: String,
         name: String,
         descriptor: String,
-        isInterface: Boolean
+        isInterface: Boolean,
     ) {
         val entry = mapMethod(owner, opcode == Opcodes.INVOKESTATIC, name, descriptor)
         if (entry == null) {
@@ -37,7 +37,7 @@ class RetroFixMethodVisitor(
         name: String,
         descriptor: String,
         bootstrapMethodHandle: Handle,
-        vararg bootstrapMethodArguments: Any
+        vararg bootstrapMethodArguments: Any,
     ) {
         val mappedBootstrapMethodArguments = Array(bootstrapMethodArguments.size) { i ->
             val argument = bootstrapMethodArguments[i]
@@ -64,15 +64,13 @@ class RetroFixMethodVisitor(
                 if (owner == entry.owner) {
                     return entry
                 }
-//                if (!isStatic) {
-                    val ownerClassData = classContext.loadClassData(owner.replace('/', '.'))
-                    if (ownerClassData != null) {
-                        val entryOwner = entry.owner.replace('/', '.')
-                        if ((entryOwner in ownerClassData.superClasses) || (entryOwner in ownerClassData.interfaces)) {
-                            return entry
-                        }
+                val ownerClassData = classContext.loadClassData(owner.replace('/', '.'))
+                if (ownerClassData != null) {
+                    val entryOwner = entry.owner.replace('/', '.')
+                    if ((entryOwner in ownerClassData.superClasses) || (!isStatic && (entryOwner in ownerClassData.interfaces))) {
+                        return entry
                     }
-//                }
+                }
             }
             entry = entry.next
         }
