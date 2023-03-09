@@ -106,29 +106,29 @@ object TimeBackport : Backport {
 
     private fun mapMethods(map: MethodMap) {
         // java.util
-        map.forType("java/util/Date")
-            .redirect("toInstant", "()Ljava/time/Instant;", "org/threeten/bp/DateTimeUtils")
-            .redirectStatic("from", "(Ljava/time/Instant;)Ljava/util/Date;", "org/threeten/bp/DateTimeUtils", "toDate")
-        map.forType("java/util/Calendar")
-            .redirect("toInstant", "()Ljava/time/Instant;", "org/threeten/bp/DateTimeUtils")
-            .redirect("toZonedDateTime", "()Ljava/time/ZonedDateTime;", "org/threeten/bp/DateTimeUtils") // TODO
-        map.forType("java/util/GregorianCalendar")
-            .redirectStatic("from", "(Ljava/time/ZonedDateTime;)Ljava/util/GregorianCalendar;", "org/threeten/bp/DateTimeUtils", "toGregorianCalendar")
-        map.forType("java/util/TimeZone")
-            .redirect("toZoneId", "()Ljava/time/ZoneId;", "org/threeten/bp/DateTimeUtils")
-            .redirectStatic("getTimeZone", "(Ljava/time/ZoneId;)Ljava/util/TimeZone;", "org/threeten/bp/DateTimeUtils", "toTimeZone")
+        map.forOwner("java/util/Date", "org/threeten/bp/DateTimeUtils")
+            .redirect("toInstant", "()Ljava/time/Instant;")
+            .redirectStatic("from", "(Ljava/time/Instant;)Ljava/util/Date;", "toDate")
+        map.forOwner("java/util/Calendar", "org/threeten/bp/DateTimeUtils")
+            .redirect("toInstant", "()Ljava/time/Instant;")
+            .redirect("toZonedDateTime", "()Ljava/time/ZonedDateTime;") // TODO
+        map.forOwner("java/util/GregorianCalendar", "org/threeten/bp/DateTimeUtils")
+            .redirectStatic("from", "(Ljava/time/ZonedDateTime;)Ljava/util/GregorianCalendar;", "toGregorianCalendar")
+        map.forOwner("java/util/TimeZone", "org/threeten/bp/DateTimeUtils")
+            .redirect("toZoneId", "()Ljava/time/ZoneId;")
+            .redirectStatic("getTimeZone", "(Ljava/time/ZoneId;)Ljava/util/TimeZone;", "toTimeZone")
 
         // java.sql
-        map.forType("java/sql/Date")
-            .redirect("toLocalDate", "()Ljava/time/LocalDate;", "org/threeten/bp/DateTimeUtils")
-            .redirectStatic("valueOf", "(Ljava/time/LocalDate;)Ljava/sql/Date;", "org/threeten/bp/DateTimeUtils", "toSqlDate")
-        map.forType("java/sql/Time")
-            .redirect("toLocalTime", "()Ljava/time/LocalTime;", "org/threeten/bp/DateTimeUtils")
-            .redirectStatic("valueOf", "(Ljava/time/LocalTime;)Ljava/sql/Time;", "org/threeten/bp/DateTimeUtils", "toSqlTime")
-        map.forType("java/sql/Timestamp")
-            .redirect("toInstant", "()Ljava/time/Instant;", "org/threeten/bp/DateTimeUtils")
-            .redirectStatic("from", "(Ljava/time/Instant;)Ljava/sql/Timestamp;", "org/threeten/bp/DateTimeUtils", "toSqlTimestamp")
-            .redirect("toLocalDateTime", "()Ljava/time/LocalDateTime;", "org/threeten/bp/DateTimeUtils")
-            .redirectStatic("valueOf", "(Ljava/time/LocalDateTime;)Ljava/sql/Timestamp;", "org/threeten/bp/DateTimeUtils", "toSqlTimestamp")
+        map.forOwner("java/sql/Date", "org/threeten/bp/DateTimeUtils")
+            .redirect("toLocalDate", "()Ljava/time/LocalDate;")
+            .redirectStatic("valueOf", "(Ljava/time/LocalDate;)Ljava/sql/Date;", "toSqlDate")
+        map.forOwner("java/sql/Time", "org/threeten/bp/DateTimeUtils")
+            .redirect("toLocalTime", "()Ljava/time/LocalTime;")
+            .redirectStatic("valueOf", "(Ljava/time/LocalTime;)Ljava/sql/Time;", "toSqlTime")
+        map.forOwner("java/sql/Timestamp", "org/threeten/bp/DateTimeUtils")
+            .redirect("toInstant", "()Ljava/time/Instant;")
+            .redirectStatic("from", "(Ljava/time/Instant;)Ljava/sql/Timestamp;", "toSqlTimestamp")
+            .redirect("toLocalDateTime", "()Ljava/time/LocalDateTime;")
+            .redirectStatic("valueOf", "(Ljava/time/LocalDateTime;)Ljava/sql/Timestamp;", "toSqlTimestamp")
     }
 }

@@ -21,7 +21,7 @@ class MethodMap {
         map[key] = Entry(owner, isStatic, name, descriptor, newOwner, newName, map[key])
     }
 
-    fun forType(type: String) = ForType(type)
+    fun forOwner(oldOwner: String, newOwner: String) = ForOwner(oldOwner, newOwner)
 
     class Entry(
         val owner: String,
@@ -39,20 +39,20 @@ class MethodMap {
         val newDescriptor get() = if (isStatic) descriptor else "(L" + owner + ";" + descriptor.substring(1)
     }
 
-    inner class ForType(private val owner: String) {
+    inner class ForOwner(private val oldOwner: String, private val newOwner: String) {
 
-        fun redirect(name: String, descriptor: String, newOwner: String): ForType {
-            redirect(owner, false, name, descriptor, newOwner, name)
+        fun redirect(name: String, descriptor: String): ForOwner {
+            redirect(oldOwner, false, name, descriptor, newOwner, name)
             return this
         }
 
-        fun redirectStatic(name: String, descriptor: String, newOwner: String): ForType {
-            redirect(owner, true, name, descriptor, newOwner, name)
+        fun redirectStatic(name: String, descriptor: String): ForOwner {
+            redirect(oldOwner, true, name, descriptor, newOwner, name)
             return this
         }
 
-        fun redirectStatic(method: String, descriptor: String, newOwner: String, newName: String): ForType {
-            redirect(owner, true, method, descriptor, newOwner, newName)
+        fun redirectStatic(method: String, descriptor: String, newName: String): ForOwner {
+            redirect(oldOwner, true, method, descriptor, newOwner, newName)
             return this
         }
     }
