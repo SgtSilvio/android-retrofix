@@ -59,21 +59,31 @@ class RetroFixMethodVisitor(
     private fun mapMethod(owner: String, isStatic: Boolean, name: String, descriptor: String): MethodMap.Entry? {
         var entry = methodMap.get(name, descriptor)
         while (entry != null) {
-            if (isStatic == entry.isStatic) {
-                if (owner == entry.owner) {
-                    return entry
-                }
-                val ownerClassData = classContext.loadClassData(owner.replace('/', '.'))
-                if (ownerClassData != null) {
-                    val entryOwner = entry.owner.replace('/', '.')
-                    if ((entryOwner in ownerClassData.superClasses) || (!isStatic && (entryOwner in ownerClassData.interfaces))) {
-                        return entry
+            if ((isStatic == entry.isStatic) && isOwner(owner, entry.owner, isStatic)) {
+                for (excludedOwner in entry.excludedOwners) {
+                    if (isOwner(owner, excludedOwner, isStatic)) {
+                        return null
                     }
                 }
+                return entry
             }
             entry = entry.next
         }
         return null
+    }
+
+    private fun isOwner(calledOwner: String, definingOwner: String, isStatic: Boolean): Boolean {
+        if (calledOwner == definingOwner) {
+            return true
+        }
+        val classData = classContext.loadClassData(calledOwner.replace('/', '.'))
+        if (classData != null) {
+            val superOwner = definingOwner.replace('/', '.')
+            if ((superOwner in classData.superClasses) || (!isStatic && (superOwner in classData.interfaces))) {
+                return true
+            }
+        }
+        return false
     }
 
     private fun mapMethod(handle: Handle): MethodMap.Entry? {

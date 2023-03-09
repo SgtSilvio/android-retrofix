@@ -11,6 +11,7 @@ class MethodMap {
 
     private fun redirect(
         owner: String,
+        excludedOwners: List<String>,
         isStatic: Boolean,
         name: String,
         descriptor: String,
@@ -19,13 +20,17 @@ class MethodMap {
     ) {
         val key = "$name$descriptor"
         val newDescriptor = if (isStatic) descriptor else "(L" + owner + ";" + descriptor.substring(1)
-        map[key] = Entry(owner, isStatic, newOwner, newName, newDescriptor, map[key])
+        map[key] = Entry(owner, excludedOwners, isStatic, newOwner, newName, newDescriptor, map[key])
     }
 
-    fun forOwner(oldOwner: String, newOwner: String) = ForOwner(oldOwner, newOwner)
+    fun forOwner(oldOwner: String, newOwner: String) = ForOwner(oldOwner, listOf(), newOwner)
+
+    fun forOwner(oldOwner: String, newOwner: String, excludedOwners: List<String>) =
+        ForOwner(oldOwner, excludedOwners, newOwner)
 
     class Entry(
         val owner: String,
+        val excludedOwners: List<String>,
         val isStatic: Boolean,
         val newOwner: String,
         val newName: String,
@@ -33,20 +38,24 @@ class MethodMap {
         val next: Entry?,
     )
 
-    inner class ForOwner(private val oldOwner: String, private val newOwner: String) {
+    inner class ForOwner(
+        private val owner: String,
+        private val excludedOwners: List<String>,
+        private val newOwner: String,
+    ) {
 
         fun redirect(name: String, descriptor: String): ForOwner {
-            redirect(oldOwner, false, name, descriptor, newOwner, name)
+            redirect(owner, excludedOwners, false, name, descriptor, newOwner, name)
             return this
         }
 
         fun redirectStatic(name: String, descriptor: String): ForOwner {
-            redirect(oldOwner, true, name, descriptor, newOwner, name)
+            redirect(owner, excludedOwners, true, name, descriptor, newOwner, name)
             return this
         }
 
         fun redirectStatic(method: String, descriptor: String, newName: String): ForOwner {
-            redirect(oldOwner, true, method, descriptor, newOwner, newName)
+            redirect(owner, excludedOwners, true, method, descriptor, newOwner, newName)
             return this
         }
     }
