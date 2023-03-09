@@ -29,11 +29,6 @@ class RetroFixPlugin : Plugin<Project> {
                 extendsFrom(configuration)
             }
 
-//            val classListTask = project.tasks.register<RetroFixClassListTask>("retrofixClassList") {
-//                libraries.from(configuration)
-//                classListFile.set(project.layout.buildDirectory.file("retrofix/class-list.txt"))
-//            }
-
             if (GradleVersion.current() >= GradleVersion.version("7.2")) {
                 val androidComponents = project.extensions.getByType<ApplicationAndroidComponentsExtension>()
                 androidComponents.onVariants { applicationVariant ->
@@ -41,9 +36,7 @@ class RetroFixPlugin : Plugin<Project> {
                         RetroFixClassVisitorFactory::class.java,
                         InstrumentationScope.ALL,
                     ) { parameters ->
-//                        parameters.classListFrom(classListTask)
-//                        parameters.classList.set(project.provider { listOf("java9/util/concurrent/CompletableFuture", "java9/lang/FunctionalInterface", "org/threeten/bp/Clock") }.map { println("map");it })
-                        parameters.classList.set(project.classListProvider(configuration))
+                        parameters.classList.set(classListProvider(project, configuration))
                     }
                 }
             } else if (GradleVersion.current() >= GradleVersion.version("7.0")) {
@@ -53,8 +46,7 @@ class RetroFixPlugin : Plugin<Project> {
                         RetroFixClassVisitorFactory::class.java,
                         InstrumentationScope.ALL,
                     ) { parameters ->
-//                        parameters.classListFrom(classListTask)
-                        parameters.classList.set(project.classListProvider(configuration))
+                        parameters.classList.set(classListProvider(project, configuration))
                     }
                 }
             } else {
@@ -74,12 +66,7 @@ class RetroFixPlugin : Plugin<Project> {
     }
 }
 
-//private fun RetroFixClassVisitorFactory.Parameters.classListFrom(classListTask: TaskProvider<RetroFixClassListTask>) {
-//    classList.set(classListTask.flatMap { it.classListFile }.map { it.asFile.readLines() })
-//    classList.set(classListTask.get().classListFile.map { it.asFile.readLines() })
-//}
-
-private fun Project.classListProvider(libraries: FileCollection) = project.provider {
+private fun classListProvider(project: Project, libraries: FileCollection) = project.provider {
     val classList = mutableListOf<String>()
     for (library in libraries) {
         if (!library.isFile || !library.name.endsWith(".jar")) {
