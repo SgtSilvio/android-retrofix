@@ -84,6 +84,7 @@ object StreamsBackport : Backport {
 
         map.forOwner("java/util/Collection", "java9/util/Spliterators")
             .redirect("spliterator", "()Ljava/util/Spliterator;")
+        map.forOwner("java/util/Collection", "java9/util/stream/StreamSupport")
             .redirect("stream", "()Ljava/util/stream/Stream;")
             .redirect("parallelStream", "()Ljava/util/stream/Stream;")
 
