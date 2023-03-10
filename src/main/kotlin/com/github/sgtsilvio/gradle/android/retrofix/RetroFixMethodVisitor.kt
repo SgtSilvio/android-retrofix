@@ -27,8 +27,6 @@ class RetroFixMethodVisitor(
         if (entry == null) {
             super.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
         } else {
-            println(classContext.currentClassData.className)
-            println("method $opcode $owner $name $descriptor $isInterface")
             super.visitMethodInsn(Opcodes.INVOKESTATIC, entry.newOwner, entry.newName, entry.newDescriptor, false)
         }
     }
@@ -46,8 +44,6 @@ class RetroFixMethodVisitor(
                 if (entry == null) {
                     argument
                 } else {
-                    println(classContext.currentClassData.className)
-                    println("invokeDynamic argument $name $descriptor $bootstrapMethodHandle ${bootstrapMethodArguments.contentToString()}")
                     Handle(Opcodes.H_INVOKESTATIC, entry.newOwner, entry.newName, entry.newDescriptor, false)
                 }
             } else argument
