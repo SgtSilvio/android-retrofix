@@ -1,0 +1,13 @@
+[versions]
+android-gradle = "7.3.1"
+asm = "9.4"
+
+[libraries]
+android-gradle = { module = "com.android.tools.build:gradle", version.ref = "android-gradle" }
+android-gradle-api = { module = "com.android.tools.build:gradle-api", version.ref = "android-gradle" }
+asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
+
+[plugins]
+plugin-publish = { id = "com.gradle.plugin-publish", version = "1.1.0" }
+defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.2.0" }
+metadata = { id = "com.github.sgtsilvio.gradle.metadata", version = "0.4.0" }

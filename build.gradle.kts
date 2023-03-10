@@ -1,8 +1,9 @@
+@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     `kotlin-dsl`
-    id("com.gradle.plugin-publish")
-    id("io.github.sgtsilvio.gradle.defaults")
-    id("com.github.sgtsilvio.gradle.metadata")
+    alias(libs.plugins.plugin.publish)
+    alias(libs.plugins.defaults)
+    alias(libs.plugins.metadata)
 }
 
 group = "com.github.sgtsilvio.gradle"
@@ -37,9 +38,9 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.android.tools.build:gradle:${property("android.tools.build.version")}")
-    compileOnly("com.android.tools.build:gradle-api:${property("android.tools.build.version")}")
-    implementation("org.ow2.asm:asm-commons:${property("asm.version")}")
+    compileOnly(libs.android.gradle)
+    compileOnly(libs.android.gradle.api)
+    implementation(libs.asm.commons)
 }
 
 gradlePlugin {
