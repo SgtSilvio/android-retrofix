@@ -21,9 +21,9 @@ The following sections list the backported APIs when adding the respective backp
 ### [android-retrostreams](https://github.com/retrostreams/android-retrostreams)
 
 Dependency:
-```groovy
+```kotlin
 dependencies {
-    implementation("net.sourceforge.streamsupport:android-retrostreams:1.7.4")
+    retrofix("net.sourceforge.streamsupport:android-retrostreams:1.7.4")
 }
 ```
 
@@ -38,7 +38,7 @@ Backported new types:
 - `java.util.concurrent.CountedCompleter`
 - `java.util.concurrent.ForkJoinPool`
 - `java.util.concurrent.ForkJoinTask`
-- `java.util.concurrent.ForkJoinWorkerTask`
+- `java.util.concurrent.ForkJoinWorkerThread`
 - `java.util.concurrent.RecursiveAction`
 - `java.util.concurrent.RecursiveTask`
 - `java.util.concurrent.ThreadLocalRandom`
@@ -61,9 +61,9 @@ Backported static/default methods of:
 ### [android-retrofuture](https://github.com/retrostreams/android-retrofuture)
 
 Dependency:
-```groovy
+```kotlin
 dependencies {
-    implementation("net.sourceforge.streamsupport:android-retrofuture:1.7.4")
+    retrofix("net.sourceforge.streamsupport:android-retrofuture:1.7.4")
 }
 ```
 
@@ -75,11 +75,11 @@ Backported new types:
 ### [threetenbp](https://github.com/ThreeTen/threetenbp) or [threetenabp](https://github.com/JakeWharton/ThreeTenABP)
 
 Dependency:
-```groovy
+```kotlin
 dependencies {
-    implementation("org.threeten:threetenbp:1.5.1")
+    retrofix("org.threeten:threetenbp:1.6.5")
     // or 
-    implementation("com.jakewharton.threetenabp:threetenabp:1.3.1")
+    retrofix("com.jakewharton.threetenabp:threetenabp:1.4.4")
 }
 ```
 
@@ -102,43 +102,47 @@ Backported conversion methods of:
 
 ## How to Use
 
-Configure your `app/build.gradle` like the following:
+`settings.gradle.kts`:
 
-```groovy
-buildscript {
+```kotlin
+pluginManagement {
     repositories {
-        google() // necessary as this plugin depends on the android gradle api
-        gradlePluginPortal() // where this plugin is hosted
-    }
-    dependencies {
-        classpath 'gradle.plugin.com.github.sgtsilvio.gradle:android-retrofix:0.4.2'
+        google() // to retrieve the google android plugins
+        gradlePluginPortal() // to retrieve this plugin
     }
 }
-
-apply plugin: 'com.android.application'
-apply plugin: 'com.github.sgtsilvio.gradle.android-retrofix'
 ...
+```
+
+`app/build.gradle.kts`:
+
+```kotlin
+plugins {
+    id("com.android.application")
+    id("com.github.sgtsilvio.gradle.android-retrofix") version "0.4.2"
+    ...
+}
 
 android {
     ...
     defaultConfig {
         ...
-        minSdkVersion 21 // has to be < 24, if you have 24+ this plugin is not needed
+        minSdk = 21 // has to be < 24, if you have 24+ this plugin is not needed
         ...
     }
     ...
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8 // enables lambdas, method references,
-        targetCompatibility JavaVersion.VERSION_1_8 //         default methods, static interface methods
+        sourceCompatibility = JavaVersion.VERSION_1_8 // enables lambdas, method references,
+        targetCompatibility = JavaVersion.VERSION_1_8 //         default methods, static interface methods
     }
     ...
 }
 
 dependencies {
-    implementation 'net.sourceforge.streamsupport:android-retrostreams:1.7.4' // for backporting streams
-    implementation 'net.sourceforge.streamsupport:android-retrofuture:1.7.4' // for backporting future
-    implementation 'org.threeten:threetenbp:1.5.1' // for backporting time
-    // or implementation 'com.jakewharton.threetenabp:threetenabp:1.3.1'
+    retrofix("net.sourceforge.streamsupport:android-retrostreams:1.7.4") // for backporting streams
+    retrofix("net.sourceforge.streamsupport:android-retrofuture:1.7.4") // for backporting future
+    retrofix("org.threeten:threetenbp:1.6.5") // for backporting time
+    // or retrofix("com.jakewharton.threetenabp:threetenabp:1.4.4")
     ...
 }
 ```
@@ -149,3 +153,8 @@ Android Studio does not know that we backport the API, so it still thinks that t
 minSdkVersion.
 You can build and run your app without any problems.
 If you want to get rid of the warning, just add `@SuppressLint("NewApi")` to the method or class where you use the API.
+
+# Requirements
+
+- Gradle 7.0 or higher
+- Android Gradle Plugin 7.0 or higher
