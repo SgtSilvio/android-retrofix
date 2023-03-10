@@ -6,7 +6,7 @@ import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap
 /**
  * @author Silvio Giebl
  */
-class StreamsBackport : Backport {
+object StreamsBackport : Backport {
 
     override val indicatorClass get() = "java9/lang/FunctionalInterface"
 

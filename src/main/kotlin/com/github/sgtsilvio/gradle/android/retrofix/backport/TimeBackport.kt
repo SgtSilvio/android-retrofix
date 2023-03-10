@@ -6,7 +6,7 @@ import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap
 /**
  * @author Silvio Giebl
  */
-class TimeBackport : Backport {
+object TimeBackport : Backport {
 
     override val indicatorClass get() = "org/threeten/bp/Clock"
 

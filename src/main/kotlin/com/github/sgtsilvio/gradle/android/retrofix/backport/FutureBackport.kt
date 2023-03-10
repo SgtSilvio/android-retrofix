@@ -6,7 +6,7 @@ import com.github.sgtsilvio.gradle.android.retrofix.transform.MethodMap
 /**
  * @author Silvio Giebl
  */
-class FutureBackport : Backport {
+object FutureBackport : Backport {
 
     override val indicatorClass get() = "java9/util/concurrent/CompletableFuture"
 
