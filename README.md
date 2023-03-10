@@ -1,6 +1,7 @@
 # Android RetroFix
 
 [![Gradle Plugin Portal](https://img.shields.io/gradle-plugin-portal/v/com.github.sgtsilvio.gradle.android-retrofix?color=brightgreen&style=for-the-badge)](https://plugins.gradle.org/plugin/com.github.sgtsilvio.gradle.android-retrofix)
+[![GitHub](https://img.shields.io/github/license/sgtsilvio/android-retrofix?color=brightgreen&style=for-the-badge)](LICENSE)
 
 Seamlessly backports Java 8 APIs to Android below API 24 (Android 7.0 Nougat)
 
