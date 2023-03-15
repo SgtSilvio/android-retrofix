@@ -66,8 +66,7 @@ private fun classListProvider(project: Project, libraries: FileCollection) = pro
         if (!library.isFile || !library.name.endsWith(".jar")) {
             throw GradleException("libraries are expected to be only jar files, but found $library")
         }
-        val zipFile = ZipFile(library)
-        zipFile.stream().map { it.name.replace('\\', '/') }.forEach { name ->
+        ZipFile(library).stream().map { it.name.replace('\\', '/') }.forEach { name ->
             if (name.endsWith(".class") &&
                 !name.startsWith("META-INF/") &&
                 (name != "module-info.class") &&
