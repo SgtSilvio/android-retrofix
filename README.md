@@ -15,7 +15,66 @@ Although Android by now supports
 [some Java 8 APIs through desugaring](https://developer.android.com/studio/write/java8-support-table),
 some important APIs are still not possible to use on Android APIs below 24 - for example `CompletableFuture`.
 
-## Backport Libraries
+## How to Use
+
+`settings.gradle.kts`:
+
+```kotlin
+pluginManagement {
+    repositories {
+        google() // to retrieve the google android plugins
+        gradlePluginPortal() // to retrieve this plugin
+    }
+}
+//...
+```
+
+`app/build.gradle.kts`:
+
+```kotlin
+plugins {
+    id("com.android.application")
+    id("com.github.sgtsilvio.gradle.android-retrofix") version "0.5.0"
+    //...
+}
+
+android {
+    //...
+    defaultConfig {
+        //...
+        minSdk = 21 // has to be < 24, if you have 24+ this plugin is not needed
+        //...
+    }
+    //...
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8 // enables lambdas, method references,
+        targetCompatibility = JavaVersion.VERSION_1_8 //         default methods, static interface methods
+    }
+    //...
+}
+
+dependencies {
+    retrofix("net.sourceforge.streamsupport:android-retrostreams:1.7.4") // for backporting streams
+    retrofix("net.sourceforge.streamsupport:android-retrofuture:1.7.4") // for backporting future
+    retrofix("org.threeten:threetenbp:1.6.5") // for backporting time
+    // or retrofix("com.jakewharton.threetenabp:threetenabp:1.4.4")
+    //...
+}
+```
+
+Android Studio will still display an error "Call requires API level 24 (current min is 21)".
+This error is actually just a warning.
+Android Studio does not know that we backport the API, so it still thinks that the API can not be used with the
+minSdkVersion.
+You can build and run your app without any problems.
+If you want to get rid of the warning, just add `@SuppressLint("NewApi")` to the method or class where you use the API.
+
+## Requirements
+
+- Gradle 7.0 or higher
+- Android Gradle Plugin 7.0 or higher
+
+## Supported Backport Libraries
 
 The following sections list the backported APIs when adding the respective backport library as dependency.
 
@@ -99,63 +158,3 @@ Backported conversion methods of:
 - `java.sql.Date`
 - `java.sql.Time`
 - `java.sql.Timestamp`
-
-
-## How to Use
-
-`settings.gradle.kts`:
-
-```kotlin
-pluginManagement {
-    repositories {
-        google() // to retrieve the google android plugins
-        gradlePluginPortal() // to retrieve this plugin
-    }
-}
-//...
-```
-
-`app/build.gradle.kts`:
-
-```kotlin
-plugins {
-    id("com.android.application")
-    id("com.github.sgtsilvio.gradle.android-retrofix") version "0.5.0"
-    //...
-}
-
-android {
-    //...
-    defaultConfig {
-        //...
-        minSdk = 21 // has to be < 24, if you have 24+ this plugin is not needed
-        //...
-    }
-    //...
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8 // enables lambdas, method references,
-        targetCompatibility = JavaVersion.VERSION_1_8 //         default methods, static interface methods
-    }
-    //...
-}
-
-dependencies {
-    retrofix("net.sourceforge.streamsupport:android-retrostreams:1.7.4") // for backporting streams
-    retrofix("net.sourceforge.streamsupport:android-retrofuture:1.7.4") // for backporting future
-    retrofix("org.threeten:threetenbp:1.6.5") // for backporting time
-    // or retrofix("com.jakewharton.threetenabp:threetenabp:1.4.4")
-    //...
-}
-```
-
-Android Studio will still display an error "Call requires API level 24 (current min is 21)".
-This error is actually just a warning.
-Android Studio does not know that we backport the API, so it still thinks that the API can not be used with the 
-minSdkVersion.
-You can build and run your app without any problems.
-If you want to get rid of the warning, just add `@SuppressLint("NewApi")` to the method or class where you use the API.
-
-# Requirements
-
-- Gradle 7.0 or higher
-- Android Gradle Plugin 7.0 or higher
