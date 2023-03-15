@@ -17,7 +17,7 @@ some important APIs are still not possible to use on Android APIs below 24 - for
 
 ## How to Use
 
-`settings.gradle.kts`:
+`settings.gradle(.kts)`:
 
 ```kotlin
 pluginManagement {
@@ -29,7 +29,7 @@ pluginManagement {
 //...
 ```
 
-`app/build.gradle.kts`:
+`app/build.gradle(.kts)`:
 
 ```kotlin
 plugins {
