@@ -1,5 +1,6 @@
 plugins {
     `kotlin-dsl`
+    signing
     alias(libs.plugins.pluginPublish)
     alias(libs.plugins.defaults)
     alias(libs.plugins.metadata)
@@ -54,4 +55,10 @@ gradlePlugin {
             tags.set(listOf("android", "retrofit", "backport"))
         }
     }
+}
+
+signing {
+    val signingKey: String? by project
+    val signingPassword: String? by project
+    useInMemoryPgpKeys(signingKey, signingPassword)
 }
