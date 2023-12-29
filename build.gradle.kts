@@ -11,24 +11,24 @@ description = "Backports Java 8 APIs (java.util.Optional, java.util.function, ja
         "java.util.concurrent.CompletableFuture, java.time) to Android below API 24 (Android 7.0 Nougat)"
 
 metadata {
-    readableName.set("Android RetroFix")
+    readableName = "Android RetroFix"
     license {
         apache2()
     }
     developers {
         register("SgtSilvio") {
-            fullName.set("Silvio Giebl")
+            fullName = "Silvio Giebl"
         }
     }
     github {
-        org.set("SgtSilvio")
+        org = "SgtSilvio"
         issues()
     }
 }
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion = JavaLanguageVersion.of(8)
     }
 }
 
@@ -44,15 +44,15 @@ dependencies {
 }
 
 gradlePlugin {
-    website.set(metadata.url)
-    vcsUrl.set(metadata.scm.get().url)
+    website = metadata.url
+    vcsUrl = metadata.scm.get().url
     plugins {
         create("androidRetrofix") {
             id = "$group.android-retrofix"
             implementationClass = "$group.android.retrofix.RetroFixPlugin"
             displayName = metadata.readableName.get()
             description = project.description
-            tags.set(listOf("android", "retrofit", "backport"))
+            tags = listOf("android", "retrofit", "backport")
         }
     }
 }
