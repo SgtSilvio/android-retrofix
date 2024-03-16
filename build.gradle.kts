@@ -7,11 +7,11 @@ plugins {
 }
 
 group = "com.github.sgtsilvio.gradle"
-description = "Backports Java 8 APIs (java.util.Optional, java.util.function, java.util.stream, " +
-        "java.util.concurrent.CompletableFuture, java.time) to Android below API 24 (Android 7.0 Nougat)"
 
 metadata {
     readableName = "Android RetroFix"
+    description = "Backports Java 8 APIs (java.util.Optional, java.util.function, java.util.stream, " +
+            "java.util.concurrent.CompletableFuture, java.time) to Android below API 24 (Android 7.0 Nougat)"
     license {
         apache2()
     }
