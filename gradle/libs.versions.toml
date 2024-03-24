@@ -1,5 +1,5 @@
 [versions]
-android-gradle = "7.3.1"
+android-gradle = "8.3.1"
 asm = "9.7"
 
 [libraries]
