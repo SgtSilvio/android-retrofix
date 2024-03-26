@@ -35,7 +35,7 @@ pluginManagement {
 ```kotlin
 plugins {
     id("com.android.application")
-    id("com.github.sgtsilvio.gradle.android-retrofix") version "0.5.0"
+    id("com.github.sgtsilvio.gradle.android-retrofix") version "1.0.0"
     //...
 }
 
