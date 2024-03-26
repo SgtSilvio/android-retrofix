@@ -57,8 +57,8 @@ android {
 dependencies {
     retrofix("net.sourceforge.streamsupport:android-retrostreams:1.7.4") // for backporting streams
     retrofix("net.sourceforge.streamsupport:android-retrofuture:1.7.4") // for backporting future
-    retrofix("org.threeten:threetenbp:1.6.5") // for backporting time
-    // or retrofix("com.jakewharton.threetenabp:threetenabp:1.4.4")
+    retrofix("org.threeten:threetenbp:1.6.9") // for backporting time
+    // or retrofix("com.jakewharton.threetenabp:threetenabp:1.4.6")
     //...
 }
 ```
