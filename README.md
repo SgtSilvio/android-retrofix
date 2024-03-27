@@ -138,9 +138,9 @@ Backported new types:
 Dependency:
 ```kotlin
 dependencies {
-    retrofix("org.threeten:threetenbp:1.6.5")
+    retrofix("org.threeten:threetenbp:1.6.9")
     // or 
-    retrofix("com.jakewharton.threetenabp:threetenabp:1.4.4")
+    retrofix("com.jakewharton.threetenabp:threetenabp:1.4.6")
 }
 ```
 
