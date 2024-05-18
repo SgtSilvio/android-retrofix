@@ -44,14 +44,10 @@ dependencies {
 }
 
 gradlePlugin {
-    website = metadata.url
-    vcsUrl = metadata.scm.get().url
     plugins {
         create("androidRetrofix") {
             id = "$group.android-retrofix"
             implementationClass = "$group.android.retrofix.RetroFixPlugin"
-            displayName = metadata.readableName.get()
-            description = project.description
             tags = listOf("android", "retrofit", "backport")
         }
     }
