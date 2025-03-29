@@ -1,6 +1,6 @@
 [versions]
 android-gradle = "8.9.1"
-asm = "9.7.1"
+asm = "9.8"
 
 [libraries]
 android-gradle = { module = "com.android.tools.build:gradle", version.ref = "android-gradle" }
