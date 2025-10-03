@@ -18,7 +18,7 @@ jobs:
             11
             21
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
       - name: Check
         run: ./gradlew check
       - name: Publish Plugin
