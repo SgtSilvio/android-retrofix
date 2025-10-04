@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+
 plugins {
     `kotlin-dsl`
     signing
@@ -26,9 +28,14 @@ metadata {
     }
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+kotlin {
+    jvmToolchain(11)
+}
+
+tasks.compileKotlin {
+    compilerOptions {
+        apiVersion = KotlinVersion.KOTLIN_2_0
+        languageVersion = KotlinVersion.KOTLIN_2_0
     }
 }
 
