@@ -21,3 +21,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
       - name: Check
         run: ./gradlew check
+      - name: Upload Reports
+        uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: reports
+          path: "**/build/reports/"
