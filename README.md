@@ -57,8 +57,8 @@ android {
 dependencies {
     retrofix("net.sourceforge.streamsupport:android-retrostreams:1.7.4") // for backporting streams
     retrofix("net.sourceforge.streamsupport:android-retrofuture:1.7.4") // for backporting future
-    retrofix("org.threeten:threetenbp:1.6.9") // for backporting time
-    // or retrofix("com.jakewharton.threetenabp:threetenabp:1.4.6")
+    retrofix("org.threeten:threetenbp:1.7.2") // for backporting time
+    // or retrofix("com.jakewharton.threetenabp:threetenabp:1.4.9")
     //...
 }
 ```
@@ -138,9 +138,9 @@ Backported new types:
 Dependency:
 ```kotlin
 dependencies {
-    retrofix("org.threeten:threetenbp:1.6.9")
+    retrofix("org.threeten:threetenbp:1.7.2")
     // or 
-    retrofix("com.jakewharton.threetenabp:threetenabp:1.4.6")
+    retrofix("com.jakewharton.threetenabp:threetenabp:1.4.9")
 }
 ```
 
