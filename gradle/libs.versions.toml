@@ -1,9 +1,8 @@
 [versions]
-android-gradle = "8.13.2"
+android-gradle = "9.0.1"
 asm = "9.9.1"
 
 [libraries]
-android-gradle = { module = "com.android.tools.build:gradle", version.ref = "android-gradle" }
 android-gradle-api = { module = "com.android.tools.build:gradle-api", version.ref = "android-gradle" }
 asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
 

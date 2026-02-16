@@ -73,7 +73,7 @@ If you want to get rid of the warning, just add `@SuppressLint("NewApi")` to the
 ## Requirements
 
 - Gradle 7.0 or higher
-- Android Gradle Plugin 7.0 or higher
+- Android Gradle Plugin 7.2.0 or higher
 
 ## Supported Backport Libraries
 

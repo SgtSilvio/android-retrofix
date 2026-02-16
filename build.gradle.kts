@@ -45,7 +45,6 @@ repositories {
 }
 
 dependencies {
-    compileOnly(libs.android.gradle)
     compileOnly(libs.android.gradle.api)
     implementation(libs.asm.commons)
 }
