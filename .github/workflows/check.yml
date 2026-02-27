@@ -22,7 +22,7 @@ jobs:
       - name: Check
         run: ./gradlew check
       - name: Upload Reports
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: reports
