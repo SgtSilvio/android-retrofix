@@ -1,3 +1,4 @@
+import org.gradle.plugin.compatibility.compatibility
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 plugins {
@@ -55,6 +56,11 @@ gradlePlugin {
             id = "$group.android-retrofix"
             implementationClass = "$group.android.retrofix.RetroFixPlugin"
             tags = listOf("android", "retrofit", "backport")
+            compatibility {
+                features {
+                    configurationCache = true
+                }
+            }
         }
     }
 }
