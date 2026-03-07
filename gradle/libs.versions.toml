@@ -9,4 +9,4 @@ asm-commons = { module = "org.ow2.asm:asm-commons", version.ref = "asm" }
 [plugins]
 pluginPublish = { id = "com.gradle.plugin-publish", version = "2.1.0" }
 defaults = { id = "io.github.sgtsilvio.gradle.defaults", version = "0.3.0" }
-metadata = { id = "io.github.sgtsilvio.gradle.metadata", version = "0.6.0" }
+metadata = { id = "io.github.sgtsilvio.gradle.metadata", version = "0.7.0" }
